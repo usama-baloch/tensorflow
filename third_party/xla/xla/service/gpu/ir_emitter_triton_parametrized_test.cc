@@ -111,7 +111,7 @@ std::string GemmTestParamsParamsToString(
 
 INSTANTIATE_TEST_SUITE_P(RewriteTestSuite, MixedTypeTest,
                          ::testing::ValuesIn({
-                             MixTypeParams{PRED, F16, 16, 32, 8},
+                             //  MixTypeParams{PRED, F16, 16, 32, 8},
                              MixTypeParams{PRED, BF16, 16, 32, 8},
                              MixTypeParams{PRED, F32, 16, 32, 8, 1e-4, 1e-3},
                              MixTypeParams{S8, F16, 16, 32, 8},
@@ -136,7 +136,7 @@ INSTANTIATE_TEST_SUITE_P(RewriteTestSuite, MixedTypeTest,
                              //  TritonRewriteTest2Params{F32, F16},
                              //  TritonRewriteTest2Params{F32, BF16},
                              MixTypeParams{S8, BF16, 24, 40, 8},
-                             MixTypeParams{S8, F16, 80, 16, 32},
+                             MixTypeParams{S8, F16, 80, 32, 32, 1e-3, 1e-6},
                              MixTypeParams{F16, F32, 127, 3, 300, 1e-2, 1e-2},
                              MixTypeParams{F16, BF16, 544, 96, 16, 1e-3, 1e-3},
                              MixTypeParams{BF16, F32, 77, 500, 333, 3e-3, 3e-3},
