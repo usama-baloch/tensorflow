@@ -69,6 +69,7 @@ void PopulateLegalizeHloToTFLitePatterns(RewritePatternSet* patterns,
 
 #define GEN_PASS_DECL_LEGALIZESTABLEHLOTOVHLOPASS
 #define GEN_PASS_DECL_LEGALIZEVHLOTOSTABLEHLOPASS
+#define GEN_PASS_DECL_LEGALIZECOMPOSITETOCUSTOMOPPASS
 #define GEN_PASS_REGISTRATION
 #include "tensorflow/compiler/mlir/lite/stablehlo/transforms/passes.h.inc"
 

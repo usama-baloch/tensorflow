@@ -258,6 +258,10 @@ void AddPostQuantizationStableHloToTfPasses(
 
   // Legalize all remaining mhlo ops to stableHLO
   pass_manager.addPass(mlir::mhlo::createHloLegalizeToStablehloPass());
+
+  // Legalize supported composite ops to custom ops
+  pass_manager.addNestedPass<mlir::func::FuncOp>(
+      mlir::odml::createLegalizeCompositeToCustomOpPass());
 }
 
 // This is the early part of the conversion in isolation. This enables a caller
