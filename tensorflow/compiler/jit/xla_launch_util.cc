@@ -43,6 +43,7 @@ limitations under the License.
 #include "xla/status_macros.h"
 #include "xla/stream_executor/platform_manager.h"
 #include "tensorflow/core/common_runtime/dma_helper.h"
+#include "tensorflow/core/common_runtime/gpu/gpu_serving_device_selector.h"
 #include "tensorflow/core/common_runtime/gpu_device_context.h"
 #include "tensorflow/core/framework/allocator.h"
 #include "tensorflow/core/framework/op.h"
@@ -863,12 +864,27 @@ Status RunPjRtExecutable(
   TF_ASSIGN_OR_RETURN(xla::PjRtDevice * device,
                       pjrt_client->LookupAddressableDevice(pjrt_device_id));
 
+  gpu::GpuServingDeviceSelector* device_selector = nullptr;
+  if (device_type == DEVICE_GPU) {
+    auto rm = ctx->resource_manager();
+    Status status = rm->Lookup<gpu::GpuServingDeviceSelector>(
+        rm->default_container(), gpu::kGpuServingDeviceSelectorResourceName,
+        &device_selector);
+    if (status.ok()) {
+      TF_ASSIGN_OR_RETURN(absl::string_view fingerprint,
+                          executable->FingerprintExecutable());
+      device_selector->Enqueue(pjrt_device_id, fingerprint);
+    }
+  }
   TF_ASSIGN_OR_RETURN(
       std::vector<std::unique_ptr<xla::PjRtBuffer>> execute_outputs,
       RunPjRtExecutable(num_missing_prefix_ctx_inputs, inputs,
                         variable_snapshots, updated_variables, device_type,
                         use_pjrt_tensor_buffer, compilation_result, device,
                         pjrt_client, executable));
+  if (device_selector != nullptr) {
+    device_selector->Completed(pjrt_device_id, /*had_error=*/false);
+  }
 
   TF_RETURN_IF_ERROR(PopulateCtxOutputsFromPjRtExecutableOutputs(
       num_missing_prefix_ctx_inputs, inputs, updated_variables,

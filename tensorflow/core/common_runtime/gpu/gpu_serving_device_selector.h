@@ -24,12 +24,16 @@ limitations under the License.
 #include "absl/container/node_hash_map.h"
 #include "absl/strings/string_view.h"
 #include "absl/synchronization/mutex.h"
+#include "tensorflow/core/framework/resource_base.h"
 #include "tsl/framework/serving_device_selector.h"
 
 namespace tensorflow {
 namespace gpu {
+const char kGpuServingDeviceSelectorResourceName[] =
+    "gpu_serving_device_selector";
 
-class GpuServingDeviceSelector : public tsl::ServingDeviceSelector {
+class GpuServingDeviceSelector : public tsl::ServingDeviceSelector,
+                                 public ResourceBase {
  public:
   GpuServingDeviceSelector(
       int num_devices,
@@ -37,6 +41,8 @@ class GpuServingDeviceSelector : public tsl::ServingDeviceSelector {
 
   tsl::DeviceReservation ReserveDevice(
       absl::string_view program_fingerprint) override;
+
+  std::string DebugString() const override;
 
   // Enqueues the program on the stream of index `index_on_host`.
   void Enqueue(int32_t index_on_host, absl::string_view fingerprint) override;

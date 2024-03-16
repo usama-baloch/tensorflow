@@ -14,9 +14,9 @@ limitations under the License.
 ==============================================================================*/
 #include "tensorflow/core/common_runtime/gpu/gpu_serving_device_selector.h"
 
-#include <algorithm>
 #include <cstdint>
 #include <memory>
+#include <string>
 #include <utility>
 
 #include "absl/base/attributes.h"
@@ -70,6 +70,10 @@ tsl::DeviceReservation GpuServingDeviceSelector::ReserveDevice(
 void GpuServingDeviceSelector::FreeDeviceReservation(
     const tsl::DeviceReservation& reservation) {
   Completed(reservation.device_index(), /*had_error=*/false);
+}
+
+std::string GpuServingDeviceSelector::DebugString() const {
+  return "GpuServingDeviceSelector";
 }
 
 void GpuServingDeviceSelector::Enqueue(int32_t index_on_host,

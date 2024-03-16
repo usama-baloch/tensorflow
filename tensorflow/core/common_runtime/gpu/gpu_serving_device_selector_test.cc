@@ -17,11 +17,11 @@ limitations under the License.
 #include <cstdint>
 #include <memory>
 #include <string>
-#include <utility>
 
 #include <gtest/gtest.h>
 #include "absl/time/clock.h"
 #include "tensorflow/core/common_runtime/gpu/gpu_scheduling_metrics_storage.h"
+#include "tensorflow/core/platform/refcount.h"
 #include "tsl/framework/serving_device_selector.h"
 #include "tsl/framework/serving_device_selector_policies.h"
 
@@ -52,27 +52,29 @@ namespace {
 
 TEST(GpuServingDeviceSelector, Basic) {
   // Create a selector with two devices and round-robin policy.
-  GpuServingDeviceSelector selector(/*num_devices=*/2,
-                                    std::make_unique<tsl::RoundRobinPolicy>());
+  auto selector = new GpuServingDeviceSelector(
+      /*num_devices=*/2, std::make_unique<tsl::RoundRobinPolicy>());
+  tensorflow::core::ScopedUnref selector_ref(selector);
 
   const std::string program_fingerprint = "TensorFlow";
   tsl::DeviceReservation reservation =
-      selector.ReserveDevice(program_fingerprint);
+      selector->ReserveDevice(program_fingerprint);
   EXPECT_EQ(reservation.device_index(), 0);
 
-  reservation = selector.ReserveDevice(program_fingerprint);
+  reservation = selector->ReserveDevice(program_fingerprint);
   EXPECT_EQ(reservation.device_index(), 1);
 
-  reservation = selector.ReserveDevice(program_fingerprint);
+  reservation = selector->ReserveDevice(program_fingerprint);
   EXPECT_EQ(reservation.device_index(), 0);
 }
 
 TEST(GpuServingDeviceSelector, DefaultPolicyOnlyEnqueueCall) {
   ServingDeviceSelectorTestHelper helper;
-  auto policy = std::make_unique<tsl::RoundRobinPolicy>();
-  auto serving_device_selector =
-      std::make_unique<tensorflow::gpu::GpuServingDeviceSelector>(
-          4, std::move(policy));
+  auto serving_device_selector = new tensorflow::gpu::GpuServingDeviceSelector(
+      4, std::make_unique<tsl::RoundRobinPolicy>());
+  tensorflow::core::ScopedUnref serving_device_selector_ref(
+      serving_device_selector);
+
   serving_device_selector->Enqueue(3, "16ms");
   serving_device_selector->Enqueue(2, "8ms");
   serving_device_selector->Enqueue(1, "4ms");

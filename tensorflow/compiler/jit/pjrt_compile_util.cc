@@ -15,8 +15,11 @@ limitations under the License.
 
 #include "tensorflow/compiler/jit/pjrt_compile_util.h"
 
+#include <memory>
+#include <utility>
 #include <vector>
 
+#include "absl/status/status.h"
 #include "tensorflow/compiler/jit/device_compilation_profiler.h"
 #include "tensorflow/compiler/jit/device_compiler.h"
 #include "tensorflow/compiler/jit/xla_compile_util.h"
@@ -24,12 +27,15 @@ limitations under the License.
 #include "tensorflow/compiler/jit/xla_platform_info.h"
 #include "tensorflow/compiler/tf2xla/xla_compiler.h"
 #include "xla/pjrt/pjrt_client.h"
+#include "tensorflow/core/common_runtime/gpu/gpu_serving_device_selector.h"
 #include "tensorflow/core/framework/device_base.h"
 #include "tensorflow/core/framework/function.h"
 #include "tensorflow/core/framework/op_kernel.h"
 #include "tensorflow/core/framework/resource_mgr.h"
+#include "tensorflow/core/framework/types.h"
 #include "tensorflow/core/lib/core/refcount.h"
 #include "tensorflow/core/platform/status.h"
+#include "tsl/framework/serving_device_selector_policies.h"
 #include "tsl/platform/errors.h"
 #include "tsl/platform/statusor.h"
 
@@ -56,6 +62,22 @@ Status CompileToPjRtLoadedExecutable(
   // will retain references, but this is more obviously correct.)
   core::ScopedUnref pjrt_device_compiler_ref(pjrt_device_compiler);
   core::ScopedUnref profiler_ref(profiler);
+
+  // Create a GpuServingDeviceSelector for tracking GPU device loads.
+  if (device->device_type() == DEVICE_GPU) {
+    gpu::GpuServingDeviceSelector* device_selector;
+    auto policy = std::make_unique<tsl::RoundRobinPolicy>();
+    TF_RETURN_IF_ERROR(rm->LookupOrCreate<gpu::GpuServingDeviceSelector>(
+        rm->default_container(), gpu::kGpuServingDeviceSelectorResourceName,
+        &device_selector, [&](gpu::GpuServingDeviceSelector** device_selector) {
+          *device_selector = new gpu::GpuServingDeviceSelector(
+              pjrt_device_compiler->client()->addressable_device_count(),
+              std::move(policy));
+          return absl::OkStatus();
+        }));
+
+    core::ScopedUnref device_selector_ref(device_selector);
+  }
 
   *client = pjrt_device_compiler->client();
 
