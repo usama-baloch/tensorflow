@@ -90,6 +90,8 @@ def tf_xla_py_test(
                 "--types=DT_HALF,DT_FLOAT,DT_DOUBLE,DT_UINT8,DT_QUINT8,DT_INT8,DT_QINT8,DT_INT32,DT_QINT32,DT_INT64,DT_BOOL,DT_COMPLEX64,DT_COMPLEX128,DT_BFLOAT16",
             ]
             backend_tags += tf_cuda_tests_tags()
+            #backend_data += if_cuda(["@cuda_nvcc//:bin", "@cuda_nvcc//:nvvm"])
+
         elif backend in plugins:
             backend_args += [
                 "--test_device=" + plugins[backend]["device"],

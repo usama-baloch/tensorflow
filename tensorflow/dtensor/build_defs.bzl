@@ -160,6 +160,9 @@ def dtensor_test(
 
     all_tests = []
     for config in configurations:
+        #if config["suffix"] == "gpu":
+        #    data = data + if_cuda(["@cuda_nvcc//:nvvm"])
+
         config_name = name + "_" + config["suffix"]
 
         all_tests.append(config_name)
