@@ -3412,6 +3412,14 @@ AutoShardingImplementation::SaveAndRemoveShardingAnnotation(
                                          /* save_for_copy_users */ false,
                                          preserve_shardings);
       }
+      if (inst->has_sharding() &&
+          spmd::IsShardingMisaligned(inst->sharding(), inst->shape())) {
+        LOG(WARNING)
+            << "Instruction " << inst->name()
+            << " has a user sharding annotation that is misaligned. Shape: "
+            << inst->shape().ToString()
+            << ". Sharding:" << inst->sharding().ToString();
+      }
     }
   }
 
