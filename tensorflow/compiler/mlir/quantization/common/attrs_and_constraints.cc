@@ -160,4 +160,13 @@ std::optional<int64_t> GetDotGeneralQuantizationDim(
   return filter_rank - 1;
 }
 
+std::optional<int64_t> GetOperandIndex(Operation* op, Value operand) {
+  for (int64_t i = 0; i < op->getNumOperands(); ++i) {
+    if (op->getOperand(i) == operand) {
+      return i;
+    }
+  }
+  return std::nullopt;
+}
+
 }  // namespace mlir::quant

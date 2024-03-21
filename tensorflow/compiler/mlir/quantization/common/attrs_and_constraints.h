@@ -180,6 +180,10 @@ Operation* FindUserOfType(Operation* op) {
   return nullptr;
 }
 
+// Returns the operand index of the value of the given operation.
+// If no such value exists, return std::nullopt.
+std::optional<int64_t> GetOperandIndex(Operation* op, Value operand);
+
 // Returns the function attribute for the given call op which is lifted for
 // quantization.
 inline FlatSymbolRefAttr GetFuncAttr(TF::PartitionedCallOp call_op) {

@@ -28,6 +28,7 @@ limitations under the License.
 #include "mlir/IR/Location.h"  // from @llvm-project
 #include "mlir/IR/MLIRContext.h"  // from @llvm-project
 #include "mlir/IR/OwningOpRef.h"  // from @llvm-project
+#include "mlir/IR/Value.h"  // from @llvm-project
 #include "mlir/Support/LLVM.h"  // from @llvm-project
 #include "stablehlo/dialect/StablehloOps.h"  // from @stablehlo
 #include "tensorflow/compiler/mlir/quantization/common/test_base.h"
@@ -700,14 +701,14 @@ TEST_F(IsOpNotQuantizedTest, FalseIfOpQuantized) {
   EXPECT_FALSE(IsOpNotQuantized(*add_op_itr));
 }
 
-TEST_F(IsOpNotQuantizedTest, FalseIfOpPartiallyQuantized) {
-  constexpr absl::string_view kQuantizeOp = R"mlir(
-    func.func @quantize(%arg0: tensor<2xf32>) -> tensor<2x!quant.uniform<i8:f32, 1.000000e+00:0>> {
-      %0 = stablehlo.uniform_quantize %arg0 : (tensor<2xf32>) -> tensor<2x!quant.uniform<i8:f32, 1.000000e+00:0>>
-      return %0 : tensor<2x!quant.uniform<i8:f32, 1.000000e+00:0>>
-    }
-  )mlir";
+constexpr absl::string_view kQuantizeOp = R"mlir(
+  func.func @quantize(%arg0: tensor<2xf32>) -> tensor<2x!quant.uniform<i8:f32, 1.000000e+00:0>> {
+    %0 = stablehlo.uniform_quantize %arg0 : (tensor<2xf32>) -> tensor<2x!quant.uniform<i8:f32, 1.000000e+00:0>>
+    return %0 : tensor<2x!quant.uniform<i8:f32, 1.000000e+00:0>>
+  }
+)mlir";
 
+TEST_F(IsOpNotQuantizedTest, FalseIfOpPartiallyQuantized) {
   OwningOpRef<ModuleOp> module_op = ParseModuleOpString(kQuantizeOp);
   ASSERT_TRUE(module_op);
 
@@ -723,6 +724,21 @@ TEST_F(IsOpNotQuantizedTest, FalseIfOpPartiallyQuantized) {
   // `uniform_quantize` is considered partially quantized because its output is
   // a quantized tensor whereas its input is not quantized.
   EXPECT_FALSE(IsOpNotQuantized(*uniform_quantize_op_itr));
+}
+
+using UniformQuantizedTypeTest = ::mlir::quant::QuantizationTestBase;
+
+TEST_F(UniformQuantizedTypeTest, GetElementTypeSucceeds) {
+  OwningOpRef<ModuleOp> module_op = ParseModuleOpString(kQuantizeOp);
+  ASSERT_TRUE(module_op);
+
+  auto func_op = module_op->lookupSymbol<func::FuncOp>("quantize");
+  ASSERT_THAT(func_op, NotNull());
+
+  auto uniform_quantize_op =
+      *func_op.getOps<::mlir::stablehlo::UniformQuantizeOp>().begin();
+  Value result = uniform_quantize_op.getResult();
+  EXPECT_THAT(GetElementType(result), NotNull());
 }
 
 }  // namespace

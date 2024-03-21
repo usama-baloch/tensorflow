@@ -417,49 +417,6 @@ void RewriteGemmStyleOp(func::FuncOp entry_func_op, PatternRewriter& rewriter,
   }
 }
 
-template <typename SingularOp>
-// Match for tensor manipulation op.
-LogicalResult MatchSingularOp(func::FuncOp entry_func_op) {
-  const auto op_iterator_range = entry_func_op.getOps<SingularOp>();
-  if (op_iterator_range.empty()) {
-    LLVM_DEBUG(llvm::dbgs() << "Function does not have "
-                            << SingularOp::getOperationName() << " op.\n");
-    return failure();
-  }
-  if (!isa<RankedTensorType>(
-          (*op_iterator_range.begin()).getResult().getType())) {
-    LLVM_DEBUG(llvm::dbgs() << SingularOp::getOperationName()
-                            << " op must have ranked tensor type.\n");
-    return failure();
-  }
-  return success();
-}
-
-template <typename SingularOp>
-void RewriteSingularOp(func::FuncOp entry_func_op, PatternRewriter& rewriter) {
-  SingularOp singular_op = *entry_func_op.getOps<SingularOp>().begin();
-
-  const Type operand_type = entry_func_op.getArgumentTypes()[0];
-  const Type func_result_type = entry_func_op.getResultTypes()[0];
-
-  // Get the quantized tensor manipulation op's output type and update.
-  Value singular_op_result = singular_op.getResult();
-  const auto singular_op_result_type =
-      singular_op_result.getType().cast<RankedTensorType>();
-  const ArrayRef<int64_t> singular_op_shape =
-      singular_op_result_type.getShape();
-  const TensorType new_singular_op_result_type =
-      singular_op_result_type.cloneWith(
-          singular_op_shape,
-          getElementTypeOrSelf(operand_type).cast<UniformQuantizedType>());
-  singular_op_result.setType(new_singular_op_result_type);
-
-  // Create requantization op and return.
-  rewriter.setInsertionPointAfter(singular_op);
-  CreateAndReturnUniformQuantizeOp(rewriter, *singular_op, entry_func_op,
-                                   func_result_type);
-}
-
 // Quantizes the entry function's body containing a `DotGeneralOp`.
 class QuantizeDotGeneralOpPattern : public EntryFuncBodyQuantizationPattern {
  public:
@@ -508,19 +465,34 @@ class QuantizeConvolutionOpPattern : public EntryFuncBodyQuantizationPattern {
   const bool enable_per_channel_quantized_weight_;
 };
 
-// Quantizes the entry function's body containing a `GatherOp`.
-class QuantizeGatherOpPattern : public EntryFuncBodyQuantizationPattern {
+template <typename SingularOp>
+class QuantizeSingularOpPattern : public EntryFuncBodyQuantizationPattern {
  public:
-  explicit QuantizeGatherOpPattern(
+  explicit QuantizeSingularOpPattern(
       const bool enable_per_channel_quantized_weight) {}
 
   LogicalResult match(func::FuncOp entry_func_op) const override {
-    return MatchSingularOp<GatherOp>(entry_func_op);
+    const auto op_iterator_range = entry_func_op.getOps<SingularOp>();
+    if (op_iterator_range.empty()) {
+      LLVM_DEBUG(llvm::dbgs() << "Function does not have "
+                              << SingularOp::getOperationName() << " op.\n");
+      return failure();
+    }
+    if (!isa<RankedTensorType>(
+            (*op_iterator_range.begin()).getResult().getType())) {
+      LLVM_DEBUG(llvm::dbgs() << SingularOp::getOperationName()
+                              << " op must have ranked tensor type.\n");
+      return failure();
+    }
+    return success();
   }
 
   void rewrite(func::FuncOp entry_func_op,
                PatternRewriter& rewriter) const override {
-    RewriteSingularOp<GatherOp>(entry_func_op, rewriter);
+    SingularOp singular_op = *entry_func_op.getOps<SingularOp>().begin();
+
+    Value singular_op_result = singular_op.getResult();
+    singular_op_result.setType(entry_func_op.getResultTypes()[0]);
   }
 };
 
@@ -933,7 +905,6 @@ class HybridXlaCallModuleOpToCallOp
   }
 };
 
-// TODO: b/307620428 - Increase fused op coverage for static range quantization.
 void PopulateFusedGemmStylePatterns(
     MLIRContext& ctx, RewritePatternSet& patterns,
     const bool enable_per_channel_quantized_weight) {
@@ -957,7 +928,9 @@ void PopulateQuantizeOpWithRegionPattern(MLIRContext& ctx,
 void PopulateQuantizeSingularOpPatterns(MLIRContext& ctx,
                                         RewritePatternSet& patterns) {
   // TODO: b/307620772 - Per-channel quantization for gather.
-  patterns.add<XlaCallModuleOpToCallOp<QuantizeGatherOpPattern>>(
+  patterns.add<XlaCallModuleOpToCallOp<QuantizeSingularOpPattern<GatherOp>>>(
+      ctx, /*enable_per_channel_quantized_weight=*/false);
+  patterns.add<XlaCallModuleOpToCallOp<QuantizeSingularOpPattern<AddOp>>>(
       ctx, /*enable_per_channel_quantized_weight=*/false);
 }
 }  // namespace mlir::quant::stablehlo
