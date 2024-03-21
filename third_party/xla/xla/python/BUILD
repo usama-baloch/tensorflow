@@ -565,6 +565,8 @@ cc_library(
         "//xla/client:xla_computation",
         "//xla/hlo/ir:hlo",
         "//xla/pjrt:mlir_to_hlo",
+        "//xla/pjrt:status_casters",
+        "//xla/pjrt/c:pjrt_c_api_custom_partitioner_extension_hdrs",
         "//xla/pjrt/c:pjrt_c_api_hdrs",
         "//xla/pjrt/c:pjrt_c_api_helpers",
         "//xla/service:call_inliner",
@@ -576,6 +578,7 @@ cc_library(
         "@com_google_absl//absl/status",
         "@com_google_absl//absl/status:statusor",
         "@com_google_absl//absl/strings",
+        "@local_tsl//tsl/platform:errors",
     ],
 )
 
@@ -601,8 +604,9 @@ cc_library(
         "//xla:util",
         "//xla/hlo/ir:hlo",
         "//xla/hlo/utils:hlo_sharding_util",
-        "//xla/pjrt:status_casters",
-        "@local_tsl//tsl/platform:errors",
+        "//xla/pjrt/c:pjrt_c_api_custom_partitioner_extension_hdrs",
+        "//xla/pjrt/c:pjrt_c_api_hdrs",
+        "//xla/pjrt/c:pjrt_c_api_helpers",
         "@local_tsl//tsl/platform:logging",
         "@local_tsl//tsl/platform:statusor",
     ],
