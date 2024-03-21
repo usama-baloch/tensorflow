@@ -2,6 +2,7 @@ load("//xla/tests:build_defs.bzl", "xla_test")
 load("//xla/service/gpu:build_defs.bzl", "get_cub_sort_kernel_types")
 load("//xla/stream_executor:build_defs.bzl", "if_gpu_is_configured")
 load("@local_config_rocm//rocm:build_defs.bzl", "if_rocm_is_configured")
+load("@local_tsl//tsl:tsl.bzl", "nvtx_headers")
 load("@local_tsl//tsl/platform/default:cuda_build_defs.bzl", "if_cuda_is_configured")
 
 package(
@@ -37,7 +38,7 @@ cc_library(
         "@local_tsl//tsl/platform:errors",
         "@local_tsl//tsl/profiler/lib:nvtx_utils",
         "@local_tsl//tsl/profiler/lib:scoped_annotation",
-    ],
+    ] + if_cuda_is_configured(nvtx_headers()),
 )
 
 #===-------------------------------------------------------------------------------------------===//
