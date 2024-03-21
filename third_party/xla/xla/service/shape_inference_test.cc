@@ -331,7 +331,7 @@ TEST_F(ShapeInferenceTest, Complex) {
   ASSERT_FALSE(complex_shape(f16_, f16_, {}).ok());
   // Validate correct uses.
   Shape c64_32 = ShapeUtil::MakeShape(C64, {32});
-  TF_ASSERT_OK_AND_ASSIGN(Shape result, complex_shape(f32_, f32_, {}));
+  TF_ASSERT_OK_AND_ASSIGN(const Shape result, complex_shape(f32_, f32_, {}));
   ASSERT_TRUE(ShapeUtil::Equal(result, ShapeUtil::MakeShape(C64, {})));
   TF_ASSERT_OK_AND_ASSIGN(result, complex_shape(vector_32_, f32_, {}));
   ASSERT_TRUE(ShapeUtil::Equal(result, c64_32));
@@ -772,7 +772,7 @@ ConvolveArgs MakeConvolveArgs(PrimitiveType lhs_type, PrimitiveType rhs_type) {
 TEST_F(ShapeInferenceTest, ConvolveWithBF16_F16) {
   ConvolveArgs args = MakeConvolveArgs(BF16, F16);
   TF_ASSERT_OK_AND_ASSIGN(
-      Shape inferred_shape,
+      const Shape inferred_shape,
       ShapeInference::InferConvolveShape(
           args.lhs_shape, args.rhs_shape, /*feature_group_count=*/1,
           /*batch_group_count=*/1, args.window, args.dnums,
@@ -784,7 +784,7 @@ TEST_F(ShapeInferenceTest, ConvolveWithBF16_F16) {
 TEST_F(ShapeInferenceTest, ConvolveWithF16_BF16) {
   ConvolveArgs args = MakeConvolveArgs(F16, BF16);
   TF_ASSERT_OK_AND_ASSIGN(
-      Shape inferred_shape,
+      const Shape inferred_shape,
       ShapeInference::InferConvolveShape(
           args.lhs_shape, args.rhs_shape, /*feature_group_count=*/1,
           /*batch_group_count=*/1, args.window, args.dnums,
@@ -796,7 +796,7 @@ TEST_F(ShapeInferenceTest, ConvolveWithF16_BF16) {
 TEST_F(ShapeInferenceTest, ConvolveWithS32_U32) {
   ConvolveArgs args = MakeConvolveArgs(S32, U32);
   TF_ASSERT_OK_AND_ASSIGN(
-      Shape inferred_shape,
+      const Shape inferred_shape,
       ShapeInference::InferConvolveShape(
           args.lhs_shape, args.rhs_shape, /*feature_group_count=*/1,
           /*batch_group_count=*/1, args.window, args.dnums,
@@ -808,7 +808,7 @@ TEST_F(ShapeInferenceTest, ConvolveWithS32_U32) {
 TEST_F(ShapeInferenceTest, ConvolveWithU32_S32) {
   ConvolveArgs args = MakeConvolveArgs(U32, S32);
   TF_ASSERT_OK_AND_ASSIGN(
-      Shape inferred_shape,
+      const Shape inferred_shape,
       ShapeInference::InferConvolveShape(
           args.lhs_shape, args.rhs_shape, /*feature_group_count=*/1,
           /*batch_group_count=*/1, args.window, args.dnums,
@@ -820,7 +820,7 @@ TEST_F(ShapeInferenceTest, ConvolveWithU32_S32) {
 TEST_F(ShapeInferenceTest, ConvolveWithPreferredElementType) {
   ConvolveArgs args = MakeConvolveArgs(S8, S16);
   TF_ASSERT_OK_AND_ASSIGN(
-      Shape inferred_shape,
+      const Shape inferred_shape,
       ShapeInference::InferConvolveShape(
           args.lhs_shape, args.rhs_shape, /*feature_group_count=*/1,
           /*batch_group_count=*/1, args.window, args.dnums,
@@ -832,7 +832,7 @@ TEST_F(ShapeInferenceTest, ConvolveWithPreferredElementType) {
 TEST_F(ShapeInferenceTest, ConvolveWithPreferredElementTypeSameAsInferredType) {
   ConvolveArgs args = MakeConvolveArgs(S8, S16);
   TF_ASSERT_OK_AND_ASSIGN(
-      Shape inferred_shape,
+      const Shape inferred_shape,
       ShapeInference::InferConvolveShape(
           args.lhs_shape, args.rhs_shape, /*feature_group_count=*/1,
           /*batch_group_count=*/1, args.window, args.dnums,
@@ -845,7 +845,7 @@ TEST_F(ShapeInferenceTest,
        FloatingPointConvolveWithNarrowerPreferredElementType) {
   ConvolveArgs args = MakeConvolveArgs(F32, F32);
   TF_ASSERT_OK_AND_ASSIGN(
-      Shape inferred_shape,
+      const Shape inferred_shape,
       ShapeInference::InferConvolveShape(
           args.lhs_shape, args.rhs_shape, /*feature_group_count=*/1,
           /*batch_group_count=*/1, args.window, args.dnums,
@@ -858,7 +858,7 @@ TEST_F(ShapeInferenceTest,
        FloatingPointConvolveWithIntegralPreferredElementType) {
   ConvolveArgs args = MakeConvolveArgs(BF16, BF16);
   TF_ASSERT_OK_AND_ASSIGN(
-      Shape inferred_shape,
+      const Shape inferred_shape,
       ShapeInference::InferConvolveShape(
           args.lhs_shape, args.rhs_shape, /*feature_group_count=*/1,
           /*batch_group_count=*/1, args.window, args.dnums,
@@ -871,7 +871,7 @@ TEST_F(ShapeInferenceTest,
        IntegralConvolveWithFloatingPointPreferredElementType) {
   ConvolveArgs args = MakeConvolveArgs(S8, S16);
   TF_ASSERT_OK_AND_ASSIGN(
-      Shape inferred_shape,
+      const Shape inferred_shape,
       ShapeInference::InferConvolveShape(
           args.lhs_shape, args.rhs_shape, /*feature_group_count=*/1,
           /*batch_group_count=*/1, args.window, args.dnums,
@@ -884,7 +884,7 @@ TEST_F(ShapeInferenceTest,
        ConvolveWithPreferredElementTypeWithDifferentSignedness) {
   ConvolveArgs args = MakeConvolveArgs(S8, S16);
   TF_ASSERT_OK_AND_ASSIGN(
-      Shape inferred_shape,
+      const Shape inferred_shape,
       ShapeInference::InferConvolveShape(
           args.lhs_shape, args.rhs_shape, /*feature_group_count=*/1,
           /*batch_group_count=*/1, args.window, args.dnums,
@@ -896,7 +896,7 @@ TEST_F(ShapeInferenceTest,
 TEST_F(ShapeInferenceTest, ConvolveWithNarrowerPreferredElementType) {
   ConvolveArgs args = MakeConvolveArgs(S8, S16);
   TF_ASSERT_OK_AND_ASSIGN(
-      Shape inferred_shape,
+      const Shape inferred_shape,
       ShapeInference::InferConvolveShape(
           args.lhs_shape, args.rhs_shape, /*feature_group_count=*/1,
           /*batch_group_count=*/1, args.window, args.dnums,
@@ -1229,7 +1229,7 @@ TEST_F(ReduceShapeInferenceTest, ReduceWindowMultiOutput) {
       MakePadding(f32_arg_shape.dimensions(), window_dimensions, window_strides,
                   Padding::kValid);
   TF_ASSERT_OK_AND_ASSIGN(
-      Window window,
+      const Window window,
       ShapeInference::InferWindowFromDimensions(
           window_dimensions, window_strides, padding_values, {}, {}));
   auto inferred_status = ShapeInference::InferReduceWindowShape(
@@ -1291,7 +1291,7 @@ TEST_F(ReduceShapeInferenceTest, ErrorBadReduceWindowInput) {
       MakePadding(f32_arg_shape.dimensions(), window_dimensions, window_strides,
                   Padding::kValid);
   TF_ASSERT_OK_AND_ASSIGN(
-      Window window,
+      const Window window,
       ShapeInference::InferWindowFromDimensions(
           window_dimensions, window_strides, padding_values, {}, {}));
   auto inferred_status = ShapeInference::InferReduceWindowShape(
@@ -1838,7 +1838,7 @@ TEST_F(ShapeInferenceTest, DotWithIntegralPreferredElementType) {
   DotDimensionNumbers dot_dnums;
   dot_dnums.add_lhs_contracting_dimensions(1);
   dot_dnums.add_rhs_contracting_dimensions(0);
-  TF_ASSERT_OK_AND_ASSIGN(Shape inferred_shape,
+  TF_ASSERT_OK_AND_ASSIGN(const Shape inferred_shape,
                           ShapeInference::InferDotOpShape(
                               ShapeUtil::MakeShape(S8, {32, 32}),
                               ShapeUtil::MakeShape(S16, {32, 32}), dot_dnums,
@@ -1851,7 +1851,7 @@ TEST_F(ShapeInferenceTest, DotWithPreferredElementTypeSameAsInferredType) {
   DotDimensionNumbers dot_dnums;
   dot_dnums.add_lhs_contracting_dimensions(1);
   dot_dnums.add_rhs_contracting_dimensions(0);
-  TF_ASSERT_OK_AND_ASSIGN(Shape inferred_shape,
+  TF_ASSERT_OK_AND_ASSIGN(const Shape inferred_shape,
                           ShapeInference::InferDotOpShape(
                               ShapeUtil::MakeShape(BF16, {32, 32}),
                               ShapeUtil::MakeShape(F32, {32, 32}), dot_dnums,
@@ -1864,7 +1864,7 @@ TEST_F(ShapeInferenceTest, FloatingPointDotWithNarrowerPreferredElementType) {
   DotDimensionNumbers dot_dnums;
   dot_dnums.add_lhs_contracting_dimensions(1);
   dot_dnums.add_rhs_contracting_dimensions(0);
-  TF_ASSERT_OK_AND_ASSIGN(Shape inferred_shape,
+  TF_ASSERT_OK_AND_ASSIGN(const Shape inferred_shape,
                           ShapeInference::InferDotOpShape(
                               ShapeUtil::MakeShape(BF16, {32, 32}),
                               ShapeUtil::MakeShape(F32, {32, 32}), dot_dnums,
@@ -1877,7 +1877,7 @@ TEST_F(ShapeInferenceTest, FloatingPointDotWithIntegralPreferredElementType) {
   DotDimensionNumbers dot_dnums;
   dot_dnums.add_lhs_contracting_dimensions(1);
   dot_dnums.add_rhs_contracting_dimensions(0);
-  TF_ASSERT_OK_AND_ASSIGN(Shape inferred_shape,
+  TF_ASSERT_OK_AND_ASSIGN(const Shape inferred_shape,
                           ShapeInference::InferDotOpShape(
                               ShapeUtil::MakeShape(BF16, {32, 32}),
                               ShapeUtil::MakeShape(BF16, {32, 32}), dot_dnums,
@@ -1890,7 +1890,7 @@ TEST_F(ShapeInferenceTest, IntegralDotWithFloatingPointPreferredElementType) {
   DotDimensionNumbers dot_dnums;
   dot_dnums.add_lhs_contracting_dimensions(1);
   dot_dnums.add_rhs_contracting_dimensions(0);
-  TF_ASSERT_OK_AND_ASSIGN(Shape inferred_shape,
+  TF_ASSERT_OK_AND_ASSIGN(const Shape inferred_shape,
                           ShapeInference::InferDotOpShape(
                               ShapeUtil::MakeShape(S8, {32, 32}),
                               ShapeUtil::MakeShape(S16, {32, 32}), dot_dnums,
@@ -1903,7 +1903,7 @@ TEST_F(ShapeInferenceTest, DotWithPreferredElementTypeWithDifferentSignedness) {
   DotDimensionNumbers dot_dnums;
   dot_dnums.add_lhs_contracting_dimensions(1);
   dot_dnums.add_rhs_contracting_dimensions(0);
-  TF_ASSERT_OK_AND_ASSIGN(Shape inferred_shape,
+  TF_ASSERT_OK_AND_ASSIGN(const Shape inferred_shape,
                           ShapeInference::InferDotOpShape(
                               ShapeUtil::MakeShape(S8, {32, 32}),
                               ShapeUtil::MakeShape(S16, {32, 32}), dot_dnums,
@@ -1916,7 +1916,7 @@ TEST_F(ShapeInferenceTest, DotWithNarrowerPreferredElementType) {
   DotDimensionNumbers dot_dnums;
   dot_dnums.add_lhs_contracting_dimensions(1);
   dot_dnums.add_rhs_contracting_dimensions(0);
-  TF_ASSERT_OK_AND_ASSIGN(Shape inferred_shape,
+  TF_ASSERT_OK_AND_ASSIGN(const Shape inferred_shape,
                           ShapeInference::InferDotOpShape(
                               ShapeUtil::MakeShape(S8, {32, 32}),
                               ShapeUtil::MakeShape(S16, {32, 32}), dot_dnums,
@@ -1938,7 +1938,7 @@ TEST_F(ShapeInferenceTest, DotWithSparseLhs) {
 
   std::vector<SparsityDescriptor> sparsity = {sparsity_descriptor};
   TF_ASSERT_OK_AND_ASSIGN(
-      Shape inferred_shape,
+      const Shape inferred_shape,
       ShapeInference::InferDotOpShape(
           ShapeUtil::MakeShape(F32, {10, 16}),
           ShapeUtil::MakeShape(F32, {32, 20}), dot_dnums,
@@ -1960,7 +1960,7 @@ TEST_F(ShapeInferenceTest, DotWithSparseRhs) {
 
   std::vector<SparsityDescriptor> sparsity = {sparsity_descriptor};
   TF_ASSERT_OK_AND_ASSIGN(
-      Shape inferred_shape,
+      const Shape inferred_shape,
       ShapeInference::InferDotOpShape(
           ShapeUtil::MakeShape(F32, {10, 32}),
           ShapeUtil::MakeShape(F32, {16, 20}), dot_dnums,
@@ -1985,7 +1985,7 @@ TEST_F(ShapeInferenceTest, DotWithSparseBothOperands) {
 
   std::vector<SparsityDescriptor> sparsity = {sparsity_lhs, sparsity_rhs};
   TF_ASSERT_OK_AND_ASSIGN(
-      Shape inferred_shape,
+      const Shape inferred_shape,
       ShapeInference::InferDotOpShape(
           ShapeUtil::MakeShape(F32, {10, 16}),
           ShapeUtil::MakeShape(F32, {16, 20}), dot_dnums,
@@ -2027,7 +2027,7 @@ TEST_F(ShapeInferenceTest, SparseDotMetadata) {
   sparsity_descriptor.set_index(0);
   sparsity_descriptor.set_dimension(2);
 
-  TF_ASSERT_OK_AND_ASSIGN(Shape inferred_shape,
+  TF_ASSERT_OK_AND_ASSIGN(const Shape inferred_shape,
                           ShapeInference::InferSparseDotMetadataShape(
                               ShapeUtil::MakeShape(F32, {5, 10, 16}), dot_dnums,
                               sparsity_descriptor));
@@ -2703,7 +2703,7 @@ class GatherShapeInferenceTest : public ShapeInferenceTest {
 };
 
 TEST_F(GatherShapeInferenceTest, TensorFlowGather) {
-  TF_ASSERT_OK_AND_ASSIGN(Shape gather_shape,
+  TF_ASSERT_OK_AND_ASSIGN(const Shape gather_shape,
                           ShapeInference::InferGatherShape(
                               matrix_64_48_, s64_vector_32_,
                               HloGatherInstruction::MakeGatherDimNumbers(
@@ -2718,7 +2718,7 @@ TEST_F(GatherShapeInferenceTest, TensorFlowGather) {
 }
 
 TEST_F(GatherShapeInferenceTest, TensorFlowGatherV2) {
-  TF_ASSERT_OK_AND_ASSIGN(Shape gather_shape,
+  TF_ASSERT_OK_AND_ASSIGN(const Shape gather_shape,
                           ShapeInference::InferGatherShape(
                               matrix_64_48_, s64_vector_32_,
                               HloGatherInstruction::MakeGatherDimNumbers(
@@ -2733,7 +2733,7 @@ TEST_F(GatherShapeInferenceTest, TensorFlowGatherV2) {
 }
 
 TEST_F(GatherShapeInferenceTest, TensorFlowGatherNd) {
-  TF_ASSERT_OK_AND_ASSIGN(Shape gather_shape,
+  TF_ASSERT_OK_AND_ASSIGN(const Shape gather_shape,
                           ShapeInference::InferGatherShape(
                               matrix_64_48_, s64_4d_tensor_10_9_8_7_1_,
                               HloGatherInstruction::MakeGatherDimNumbers(
@@ -2749,7 +2749,7 @@ TEST_F(GatherShapeInferenceTest, TensorFlowGatherNd) {
 
 TEST_F(GatherShapeInferenceTest, TensorFlowBatchDynamicSlice) {
   TF_ASSERT_OK_AND_ASSIGN(
-      Shape gather_shape,
+      const Shape gather_shape,
       ShapeInference::InferGatherShape(
           f32_5d_tensor_50_49_48_47_46_, s64_4d_tensor_10_9_8_7_5_,
           HloGatherInstruction::MakeGatherDimNumbers(
@@ -2766,7 +2766,7 @@ TEST_F(GatherShapeInferenceTest, TensorFlowBatchDynamicSlice) {
 
 TEST_F(GatherShapeInferenceTest, DynamicGatherEntireDimension) {
   TF_ASSERT_OK_AND_ASSIGN(
-      Shape gather_shape,
+      const Shape gather_shape,
       ShapeInference::InferGatherShape(
           ShapeUtil::MakeShape(F32, {3, 2, 1}, {false, true, false}),
           ShapeUtil::MakeShape(S64, {}),
@@ -2783,7 +2783,7 @@ TEST_F(GatherShapeInferenceTest, DynamicGatherEntireDimension) {
 
 TEST_F(GatherShapeInferenceTest, DynamicGatherCollapsedDimension) {
   TF_ASSERT_OK_AND_ASSIGN(
-      Shape gather_shape,
+      const Shape gather_shape,
       ShapeInference::InferGatherShape(
           ShapeUtil::MakeShape(F32, {3, 2, 1}, {true, false, false}),
           ShapeUtil::MakeShape(S64, {}),
@@ -2800,7 +2800,7 @@ TEST_F(GatherShapeInferenceTest, DynamicGatherCollapsedDimension) {
 
 TEST_F(GatherShapeInferenceTest, DynamicIndices) {
   TF_ASSERT_OK_AND_ASSIGN(
-      Shape gather_shape,
+      const Shape gather_shape,
       ShapeInference::InferGatherShape(
           ShapeUtil::MakeShape(F32, {3, 2, 2}),
           ShapeUtil::MakeShape(S64, {3, 4, 2}, {false, true, false}),
@@ -2818,7 +2818,7 @@ TEST_F(GatherShapeInferenceTest, DynamicIndices) {
 
 TEST_F(GatherShapeInferenceTest, NonDefaultGatherIndicesLeafDim_A) {
   TF_ASSERT_OK_AND_ASSIGN(
-      Shape gather_shape,
+      const Shape gather_shape,
       ShapeInference::InferGatherShape(
           f32_5d_tensor_50_49_48_47_46_, s64_4d_tensor_10_9_5_7_6_,
           HloGatherInstruction::MakeGatherDimNumbers(
@@ -2836,7 +2836,7 @@ TEST_F(GatherShapeInferenceTest, NonDefaultGatherIndicesLeafDim_A) {
 
 TEST_F(GatherShapeInferenceTest, NonDefaultGatherIndicesLeafDim_B) {
   TF_ASSERT_OK_AND_ASSIGN(
-      Shape gather_shape,
+      const Shape gather_shape,
       ShapeInference::InferGatherShape(
           f32_5d_tensor_50_49_48_47_46_, s64_4d_tensor_5_10_9_7_6_,
           HloGatherInstruction::MakeGatherDimNumbers(
@@ -2854,7 +2854,7 @@ TEST_F(GatherShapeInferenceTest, NonDefaultGatherIndicesLeafDim_B) {
 
 TEST_F(GatherShapeInferenceTest, NoOutputGatherDims) {
   // This is equivalent to a dynamic slice.
-  TF_ASSERT_OK_AND_ASSIGN(Shape gather_shape,
+  TF_ASSERT_OK_AND_ASSIGN(const Shape gather_shape,
                           ShapeInference::InferGatherShape(
                               f32_5d_tensor_50_49_48_47_46_, s64_vector_5_,
                               HloGatherInstruction::MakeGatherDimNumbers(
@@ -2872,7 +2872,7 @@ TEST_F(GatherShapeInferenceTest, NoOutputGatherDims) {
 TEST_F(GatherShapeInferenceTest, ScalarGatherIndices) {
   // The gather indices "tensor" is a scalar S here that's used to slice out
   // [S,0,0,0,0]..[S,30,29,28,27] into a [30,29,28,27] shaped result.
-  TF_ASSERT_OK_AND_ASSIGN(Shape gather_shape,
+  TF_ASSERT_OK_AND_ASSIGN(const Shape gather_shape,
                           ShapeInference::InferGatherShape(
                               f32_5d_tensor_50_49_48_47_46_, s64_scalar_,
                               HloGatherInstruction::MakeGatherDimNumbers(
@@ -3255,7 +3255,7 @@ class ScatterShapeInferenceTest
 
 TEST_P(ScatterShapeInferenceTest, TfScatterWithFullUpdates) {
   auto shapes = CreateShapes({64, 48}, s64_vector(32), {64, 32}, types());
-  TF_ASSERT_OK_AND_ASSIGN(Shape scatter_shape,
+  TF_ASSERT_OK_AND_ASSIGN(const Shape scatter_shape,
                           ShapeInference::InferScatterShape(
                               shapes.ptrs, to_apply(types()),
                               HloScatterInstruction::MakeScatterDimNumbers(
@@ -3269,7 +3269,7 @@ TEST_P(ScatterShapeInferenceTest, TfScatterWithFullUpdates) {
 
 TEST_P(ScatterShapeInferenceTest, TfScatterWithFullUpdatesV2) {
   auto shapes = CreateShapes({64, 48}, s64_vector(32), {32, 48}, types());
-  TF_ASSERT_OK_AND_ASSIGN(Shape scatter_shape,
+  TF_ASSERT_OK_AND_ASSIGN(const Shape scatter_shape,
                           ShapeInference::InferScatterShape(
                               shapes.ptrs, to_apply(types()),
                               HloScatterInstruction::MakeScatterDimNumbers(
@@ -3283,7 +3283,7 @@ TEST_P(ScatterShapeInferenceTest, TfScatterWithFullUpdatesV2) {
 
 TEST_P(ScatterShapeInferenceTest, TfScatterWithPartialUpdates) {
   auto shapes = CreateShapes({64, 48}, s64_vector(32), {10, 32}, types());
-  TF_ASSERT_OK_AND_ASSIGN(Shape scatter_shape,
+  TF_ASSERT_OK_AND_ASSIGN(const Shape scatter_shape,
                           ShapeInference::InferScatterShape(
                               shapes.ptrs, to_apply(types()),
                               HloScatterInstruction::MakeScatterDimNumbers(
@@ -3297,7 +3297,7 @@ TEST_P(ScatterShapeInferenceTest, TfScatterWithPartialUpdates) {
 
 TEST_P(ScatterShapeInferenceTest, TfScatterWithPartialUpdatesV2) {
   auto shapes = CreateShapes({64, 48}, s64_vector(32), {32, 8}, types());
-  TF_ASSERT_OK_AND_ASSIGN(Shape scatter_shape,
+  TF_ASSERT_OK_AND_ASSIGN(const Shape scatter_shape,
                           ShapeInference::InferScatterShape(
                               shapes.ptrs, to_apply(types()),
                               HloScatterInstruction::MakeScatterDimNumbers(
@@ -3382,7 +3382,7 @@ TEST_P(ScatterShapeInferenceTest, TfScatterWithUpdatesNotMatchingIndicesV2) {
 TEST_P(ScatterShapeInferenceTest, TfScatterNdWithFullUpdates) {
   auto shapes = CreateShapes({64, 48}, s64_tensor({10, 9, 8, 7, 1}),
                              {10, 9, 8, 7, 48}, types());
-  TF_ASSERT_OK_AND_ASSIGN(Shape scatter_shape,
+  TF_ASSERT_OK_AND_ASSIGN(const Shape scatter_shape,
                           ShapeInference::InferScatterShape(
                               shapes.ptrs, to_apply(types()),
                               HloScatterInstruction::MakeScatterDimNumbers(
@@ -3397,7 +3397,7 @@ TEST_P(ScatterShapeInferenceTest, TfScatterNdWithFullUpdates) {
 TEST_P(ScatterShapeInferenceTest, TfScatterNdWithFullUpdatesV2) {
   auto shapes = CreateShapes({64, 48}, s64_tensor({10, 9, 8, 7, 1}),
                              {10, 9, 8, 7, 64}, types());
-  TF_ASSERT_OK_AND_ASSIGN(Shape scatter_shape,
+  TF_ASSERT_OK_AND_ASSIGN(const Shape scatter_shape,
                           ShapeInference::InferScatterShape(
                               shapes.ptrs, to_apply(types()),
                               HloScatterInstruction::MakeScatterDimNumbers(
@@ -3412,7 +3412,7 @@ TEST_P(ScatterShapeInferenceTest, TfScatterNdWithFullUpdatesV2) {
 TEST_P(ScatterShapeInferenceTest, TfScatterNdWithPartialUpdates) {
   auto shapes = CreateShapes({64, 48}, s64_tensor({10, 9, 8, 7, 1}),
                              {10, 9, 8, 7, 10}, types());
-  TF_ASSERT_OK_AND_ASSIGN(Shape scatter_shape,
+  TF_ASSERT_OK_AND_ASSIGN(const Shape scatter_shape,
                           ShapeInference::InferScatterShape(
                               shapes.ptrs, to_apply(types()),
                               HloScatterInstruction::MakeScatterDimNumbers(
@@ -3427,7 +3427,7 @@ TEST_P(ScatterShapeInferenceTest, TfScatterNdWithPartialUpdates) {
 TEST_P(ScatterShapeInferenceTest, TfScatterNdWithPartialUpdatesV2) {
   auto shapes = CreateShapes({64, 48}, s64_tensor({10, 9, 8, 7, 1}),
                              {10, 9, 8, 7, 12}, types());
-  TF_ASSERT_OK_AND_ASSIGN(Shape scatter_shape,
+  TF_ASSERT_OK_AND_ASSIGN(const Shape scatter_shape,
                           ShapeInference::InferScatterShape(
                               shapes.ptrs, to_apply(types()),
                               HloScatterInstruction::MakeScatterDimNumbers(
@@ -3480,7 +3480,7 @@ TEST_P(ScatterShapeInferenceTest, TfBatchDynamicUpdateSlice) {
   auto shapes = CreateShapes({50, 49, 48, 47, 46}, s64_tensor({10, 9, 8, 7, 5}),
                              {10, 9, 8, 7, 30, 29, 28, 27, 26}, types());
   TF_ASSERT_OK_AND_ASSIGN(
-      Shape scatter_shape,
+      const Shape scatter_shape,
       ShapeInference::InferScatterShape(
           shapes.ptrs, to_apply(types()),
           HloScatterInstruction::MakeScatterDimNumbers(
@@ -3497,7 +3497,7 @@ TEST_P(ScatterShapeInferenceTest, NonDefaultScatterIndicesLeafDim) {
   auto shapes = CreateShapes({50, 49, 48, 47, 46}, s64_tensor({10, 9, 5, 7, 6}),
                              {10, 9, 7, 6, 30, 29, 28, 27, 26}, types());
   TF_ASSERT_OK_AND_ASSIGN(
-      Shape scatter_shape,
+      const Shape scatter_shape,
       ShapeInference::InferScatterShape(
           shapes.ptrs, to_apply(types()),
           HloScatterInstruction::MakeScatterDimNumbers(
@@ -3515,7 +3515,7 @@ TEST_P(ScatterShapeInferenceTest, NonDefaultScatterIndicesLeafDimV2) {
   auto shapes = CreateShapes({50, 49, 48, 47, 46}, s64_tensor({5, 10, 9, 7, 6}),
                              {10, 9, 7, 6, 30, 29, 28, 27, 26}, types());
   TF_ASSERT_OK_AND_ASSIGN(
-      Shape scatter_shape,
+      const Shape scatter_shape,
       ShapeInference::InferScatterShape(
           shapes.ptrs, to_apply(types()),
           HloScatterInstruction::MakeScatterDimNumbers(
@@ -3534,7 +3534,7 @@ TEST_P(ScatterShapeInferenceTest, NoUpdateScatterDims) {
                              {30, 29, 28, 27, 26}, types());
   // This is equivalent to a dynamic update slice.
   TF_ASSERT_OK_AND_ASSIGN(
-      Shape scatter_shape,
+      const Shape scatter_shape,
       ShapeInference::InferScatterShape(
           shapes.ptrs, to_apply(types()),
           HloScatterInstruction::MakeScatterDimNumbers(
@@ -3553,7 +3553,7 @@ TEST_P(ScatterShapeInferenceTest, ScalarScatterIndices) {
                              {30, 29, 28, 27}, types());
   // The scalar indices "tensor" is a scalar S here that's used to update a
   // [30,29,28,27] shaped tensor within the operand at position S.
-  TF_ASSERT_OK_AND_ASSIGN(Shape scatter_shape,
+  TF_ASSERT_OK_AND_ASSIGN(const Shape scatter_shape,
                           ShapeInference::InferScatterShape(
                               shapes.ptrs, to_apply(types()),
                               HloScatterInstruction::MakeScatterDimNumbers(
@@ -3883,10 +3883,11 @@ INSTANTIATE_TEST_SUITE_P(All, ScatterShapeInferenceTest,
                          ScatterTestName());
 
 TEST_P(UnboundedUnaryOpShapeInferenceTest, UnboundedUnaryOps) {
-  TF_ASSERT_OK_AND_ASSIGN(Shape operand, ParseShape(GetParam().operand));
-  TF_ASSERT_OK_AND_ASSIGN(Shape expected, ParseShape(GetParam().expected));
+  TF_ASSERT_OK_AND_ASSIGN(const Shape operand, ParseShape(GetParam().operand));
+  TF_ASSERT_OK_AND_ASSIGN(const Shape expected,
+                          ParseShape(GetParam().expected));
   TF_ASSERT_OK_AND_ASSIGN(
-      const Shape inferred,
+      const const Shape inferred,
       ShapeInference::InferUnaryOpShape(GetParam().opcode, operand));
   EXPECT_TRUE(ShapeUtil::Equal(inferred, expected))
       << "inferred: " << ShapeUtil::HumanString(inferred)
@@ -3894,12 +3895,13 @@ TEST_P(UnboundedUnaryOpShapeInferenceTest, UnboundedUnaryOps) {
 }
 
 TEST_P(UnboundedBinaryOpShapeInferenceTest, UnboundedAdd) {
-  TF_ASSERT_OK_AND_ASSIGN(Shape lhs, ParseShape(GetParam().lhs));
-  TF_ASSERT_OK_AND_ASSIGN(Shape rhs, ParseShape(GetParam().rhs));
+  TF_ASSERT_OK_AND_ASSIGN(const Shape lhs, ParseShape(GetParam().lhs));
+  TF_ASSERT_OK_AND_ASSIGN(const Shape rhs, ParseShape(GetParam().rhs));
   absl::StatusOr<Shape> inferred_status = ShapeInference::InferBinaryOpShape(
       HloOpcode::kAdd, lhs, rhs, GetParam().broadcast_dimensions);
   if (inferred_status.ok()) {
-    TF_ASSERT_OK_AND_ASSIGN(Shape expected, ParseShape(GetParam().expected));
+    TF_ASSERT_OK_AND_ASSIGN(const Shape expected,
+                            ParseShape(GetParam().expected));
     EXPECT_TRUE(ShapeUtil::Equal(*inferred_status, expected))
         << "inferred: " << ShapeUtil::HumanString(*inferred_status)
         << " expected: " << ShapeUtil::HumanString(expected);
@@ -3911,12 +3913,13 @@ TEST_P(UnboundedBinaryOpShapeInferenceTest, UnboundedAdd) {
 }
 
 TEST_P(UnboundedAndOpShapeInferenceTest, UnboundedAnd) {
-  TF_ASSERT_OK_AND_ASSIGN(Shape lhs, ParseShape(GetParam().lhs));
-  TF_ASSERT_OK_AND_ASSIGN(Shape rhs, ParseShape(GetParam().rhs));
+  TF_ASSERT_OK_AND_ASSIGN(const Shape lhs, ParseShape(GetParam().lhs));
+  TF_ASSERT_OK_AND_ASSIGN(const Shape rhs, ParseShape(GetParam().rhs));
   absl::StatusOr<Shape> inferred_status = ShapeInference::InferBinaryOpShape(
       HloOpcode::kAnd, lhs, rhs, GetParam().broadcast_dimensions);
   if (inferred_status.ok()) {
-    TF_ASSERT_OK_AND_ASSIGN(Shape expected, ParseShape(GetParam().expected));
+    TF_ASSERT_OK_AND_ASSIGN(const Shape expected,
+                            ParseShape(GetParam().expected));
     EXPECT_TRUE(ShapeUtil::Equal(*inferred_status, expected))
         << "inferred: " << ShapeUtil::HumanString(*inferred_status)
         << " expected: " << ShapeUtil::HumanString(expected);
@@ -3927,16 +3930,27 @@ TEST_P(UnboundedAndOpShapeInferenceTest, UnboundedAnd) {
   }
 }
 
+TEST_F(ShapeInferenceTest, UnboundedBitcastConvert) {
+  TF_ASSERT_OK_AND_ASSIGN(const Shape operand, ParseShape("f32[?, 10]"));
+  TF_ASSERT_OK_AND_ASSIGN(
+      const Shape inferred_status,
+      ShapeInference::InferBitcastConvertShape(operand, PrimitiveType::F16));
+  TF_ASSERT_OK_AND_ASSIGN(const Shape expected, ParseShape("f16[?, 10, 2]"));
+  EXPECT_TRUE(ShapeUtil::Equal(inferred_status, expected))
+      << "inferred: " << ShapeUtil::HumanString(inferred_status)
+      << " expected: " << ShapeUtil::HumanString(expected);
+}
+
 TEST_F(ShapeInferenceTest, UnboundedBatchNormGrad) {
-  TF_ASSERT_OK_AND_ASSIGN(Shape operand, ParseShape("f32[?, ?, 7]"));
-  TF_ASSERT_OK_AND_ASSIGN(Shape grad_operand, ParseShape("f32[?, ?, 7]"));
-  TF_ASSERT_OK_AND_ASSIGN(Shape scale, ParseShape("f32[5]"));
-  TF_ASSERT_OK_AND_ASSIGN(Shape mean, ParseShape("f32[?]"));
-  TF_ASSERT_OK_AND_ASSIGN(Shape variance, ParseShape("f32[?]"));
-  TF_ASSERT_OK_AND_ASSIGN(Shape grad_scale, ParseShape("f32[?]"));
-  TF_ASSERT_OK_AND_ASSIGN(Shape grad_offset, ParseShape("f32[?]"));
-  TF_ASSERT_OK_AND_ASSIGN(Shape grad_output, ParseShape("f32[5, ?, 7]"));
-  TF_ASSERT_OK_AND_ASSIGN(Shape result_shape,
+  TF_ASSERT_OK_AND_ASSIGN(const Shape operand, ParseShape("f32[?, ?, 7]"));
+  TF_ASSERT_OK_AND_ASSIGN(const Shape grad_operand, ParseShape("f32[?, ?, 7]"));
+  TF_ASSERT_OK_AND_ASSIGN(const Shape scale, ParseShape("f32[5]"));
+  TF_ASSERT_OK_AND_ASSIGN(const Shape mean, ParseShape("f32[?]"));
+  TF_ASSERT_OK_AND_ASSIGN(const Shape variance, ParseShape("f32[?]"));
+  TF_ASSERT_OK_AND_ASSIGN(const Shape grad_scale, ParseShape("f32[?]"));
+  TF_ASSERT_OK_AND_ASSIGN(const Shape grad_offset, ParseShape("f32[?]"));
+  TF_ASSERT_OK_AND_ASSIGN(const Shape grad_output, ParseShape("f32[5, ?, 7]"));
+  TF_ASSERT_OK_AND_ASSIGN(const Shape result_shape,
                           ShapeInference::InferBatchNormGradShape(
                               operand, scale, mean, variance, grad_output, 1));
   Shape expected_tuple_shape =
@@ -3947,31 +3961,31 @@ TEST_F(ShapeInferenceTest, UnboundedBatchNormGrad) {
 }
 
 TEST_F(ShapeInferenceTest, UnboundedBatchNormInference) {
-  TF_ASSERT_OK_AND_ASSIGN(Shape operand, ParseShape("f32[?, ?, 7]"));
-  TF_ASSERT_OK_AND_ASSIGN(Shape scale, ParseShape("f32[5]"));
-  TF_ASSERT_OK_AND_ASSIGN(Shape offset, ParseShape("f32[5]"));
-  TF_ASSERT_OK_AND_ASSIGN(Shape mean, ParseShape("f32[5]"));
-  TF_ASSERT_OK_AND_ASSIGN(Shape variance, ParseShape("f32[5]"));
-  TF_ASSERT_OK_AND_ASSIGN(Shape result_shape,
+  TF_ASSERT_OK_AND_ASSIGN(const Shape operand, ParseShape("f32[?, ?, 7]"));
+  TF_ASSERT_OK_AND_ASSIGN(const Shape scale, ParseShape("f32[5]"));
+  TF_ASSERT_OK_AND_ASSIGN(const Shape offset, ParseShape("f32[5]"));
+  TF_ASSERT_OK_AND_ASSIGN(const Shape mean, ParseShape("f32[5]"));
+  TF_ASSERT_OK_AND_ASSIGN(const Shape variance, ParseShape("f32[5]"));
+  TF_ASSERT_OK_AND_ASSIGN(const Shape result_shape,
                           ShapeInference::InferBatchNormInferenceShape(
                               operand, scale, offset, mean, variance, 1));
-  TF_ASSERT_OK_AND_ASSIGN(Shape expected, ParseShape("f32[?, ?, 7]"));
+  TF_ASSERT_OK_AND_ASSIGN(const Shape expected, ParseShape("f32[?, ?, 7]"));
   EXPECT_TRUE(ShapeUtil::Equal(result_shape, expected))
       << "inferred: " << ShapeUtil::HumanString(result_shape)
       << " expected: " << ShapeUtil::HumanString(expected);
 }
 
 TEST_F(ShapeInferenceTest, UnboundedBatchNormTraining) {
-  TF_ASSERT_OK_AND_ASSIGN(Shape operand, ParseShape("f32[?, ?, 7]"));
-  TF_ASSERT_OK_AND_ASSIGN(Shape output, ParseShape("f32[?, ?, 7]"));
-  TF_ASSERT_OK_AND_ASSIGN(Shape scale, ParseShape("f32[5]"));
-  TF_ASSERT_OK_AND_ASSIGN(Shape offset, ParseShape("f32[5]"));
-  TF_ASSERT_OK_AND_ASSIGN(Shape batch_mean, ParseShape("f32[?]"));
-  TF_ASSERT_OK_AND_ASSIGN(Shape batch_var, ParseShape("f32[?]"));
+  TF_ASSERT_OK_AND_ASSIGN(const Shape operand, ParseShape("f32[?, ?, 7]"));
+  TF_ASSERT_OK_AND_ASSIGN(const Shape output, ParseShape("f32[?, ?, 7]"));
+  TF_ASSERT_OK_AND_ASSIGN(const Shape scale, ParseShape("f32[5]"));
+  TF_ASSERT_OK_AND_ASSIGN(const Shape offset, ParseShape("f32[5]"));
+  TF_ASSERT_OK_AND_ASSIGN(const Shape batch_mean, ParseShape("f32[?]"));
+  TF_ASSERT_OK_AND_ASSIGN(const Shape batch_var, ParseShape("f32[?]"));
   Shape expected_tuple_shape =
       ShapeUtil::MakeTupleShape({output, batch_mean, batch_var});
   TF_ASSERT_OK_AND_ASSIGN(
-      Shape result_shape,
+      const Shape result_shape,
       ShapeInference::InferBatchNormTrainingShape(operand, scale, offset, 1));
   EXPECT_TRUE(ShapeUtil::Equal(result_shape, expected_tuple_shape))
       << "inferred: " << ShapeUtil::HumanString(result_shape)
@@ -3979,8 +3993,8 @@ TEST_F(ShapeInferenceTest, UnboundedBatchNormTraining) {
 }
 
 TEST_F(ShapeInferenceTest, UnboundedBroadcastUnsupportedOperand) {
-  TF_ASSERT_OK_AND_ASSIGN(Shape operand, ParseShape("f32[<=2, ?]"));
-  TF_ASSERT_OK_AND_ASSIGN(Shape expected, ParseShape("f32[1, <=2, ?]"));
+  TF_ASSERT_OK_AND_ASSIGN(const Shape operand, ParseShape("f32[<=2, ?]"));
+  TF_ASSERT_OK_AND_ASSIGN(const Shape expected, ParseShape("f32[1, <=2, ?]"));
   absl::StatusOr<Shape> inferred_status =
       ShapeInference::InferBroadcastShape(operand, /*broadcast_sizes=*/{1});
   EXPECT_THAT(inferred_status.status().message(),
@@ -3988,7 +4002,7 @@ TEST_F(ShapeInferenceTest, UnboundedBroadcastUnsupportedOperand) {
 }
 
 TEST_F(ShapeInferenceTest, UnboundedBroadcastUnsupportedBroadcastSize) {
-  TF_ASSERT_OK_AND_ASSIGN(Shape operand, ParseShape("f32[<=2, 4]"));
+  TF_ASSERT_OK_AND_ASSIGN(const Shape operand, ParseShape("f32[<=2, 4]"));
   absl::StatusOr<Shape> inferred_status = ShapeInference::InferBroadcastShape(
       operand, /*broadcast_sizes=*/{Shape::kUnboundedSize});
   EXPECT_THAT(inferred_status.status().message(),
@@ -3996,10 +4010,10 @@ TEST_F(ShapeInferenceTest, UnboundedBroadcastUnsupportedBroadcastSize) {
 }
 
 TEST_F(ShapeInferenceTest, UnboundedBroadcastInDim) {
-  TF_ASSERT_OK_AND_ASSIGN(Shape operand, ParseShape("f32[<=2, ?]"));
-  TF_ASSERT_OK_AND_ASSIGN(Shape expected, ParseShape("f32[<=2, 3, 4]"));
+  TF_ASSERT_OK_AND_ASSIGN(const Shape operand, ParseShape("f32[<=2, ?]"));
+  TF_ASSERT_OK_AND_ASSIGN(const Shape expected, ParseShape("f32[<=2, 3, 4]"));
   TF_ASSERT_OK_AND_ASSIGN(
-      Shape inferred_status,
+      const Shape inferred_status,
       ShapeInference::InferBroadcastShape(operand, expected,
                                           /*broadcast_dimensions=*/{0, 2}));
   EXPECT_TRUE(ShapeUtil::Equal(inferred_status, expected))
@@ -4008,10 +4022,10 @@ TEST_F(ShapeInferenceTest, UnboundedBroadcastInDim) {
 }
 
 TEST_F(ShapeInferenceTest, UnboundedBroadcastInDimToBounded) {
-  TF_ASSERT_OK_AND_ASSIGN(Shape operand, ParseShape("f32[<=2, ?]"));
-  TF_ASSERT_OK_AND_ASSIGN(Shape expected, ParseShape("f32[<=2, 3, <=4]"));
+  TF_ASSERT_OK_AND_ASSIGN(const Shape operand, ParseShape("f32[<=2, ?]"));
+  TF_ASSERT_OK_AND_ASSIGN(const Shape expected, ParseShape("f32[<=2, 3, <=4]"));
   TF_ASSERT_OK_AND_ASSIGN(
-      Shape inferred_status,
+      const Shape inferred_status,
       ShapeInference::InferBroadcastShape(operand, expected,
                                           /*broadcast_dimensions=*/{0, 2}));
   EXPECT_TRUE(ShapeUtil::Equal(inferred_status, expected))
@@ -4020,8 +4034,8 @@ TEST_F(ShapeInferenceTest, UnboundedBroadcastInDimToBounded) {
 }
 
 TEST_F(ShapeInferenceTest, UnboundedBroadcastInDimUnsupportedOutput) {
-  TF_ASSERT_OK_AND_ASSIGN(Shape operand, ParseShape("f32[<=2, ?]"));
-  TF_ASSERT_OK_AND_ASSIGN(Shape expected, ParseShape("f32[<=2, 3, ?]"));
+  TF_ASSERT_OK_AND_ASSIGN(const Shape operand, ParseShape("f32[<=2, ?]"));
+  TF_ASSERT_OK_AND_ASSIGN(const Shape expected, ParseShape("f32[<=2, 3, ?]"));
   absl::StatusOr<Shape> inferred_status =
       ShapeInference::InferBroadcastShape(operand, expected,
                                           /*broadcast_dimensions=*/{0, 2});
@@ -4030,7 +4044,7 @@ TEST_F(ShapeInferenceTest, UnboundedBroadcastInDimUnsupportedOutput) {
 }
 
 TEST_F(ShapeInferenceTest, UnboundedBroadcastInDimUnsupported) {
-  TF_ASSERT_OK_AND_ASSIGN(Shape operand, ParseShape("f32[<=2, 4]"));
+  TF_ASSERT_OK_AND_ASSIGN(const Shape operand, ParseShape("f32[<=2, 4]"));
   absl::StatusOr<Shape> inferred_status = ShapeInference::InferBroadcastShape(
       operand, /*broadcast_sizes=*/{2, Shape::kUnboundedSize, 4});
   EXPECT_THAT(inferred_status.status().message(),
@@ -4038,13 +4052,13 @@ TEST_F(ShapeInferenceTest, UnboundedBroadcastInDimUnsupported) {
 }
 
 TEST_P(UnboundedClampOpShapeInferenceTest, UnboundedClamp) {
-  TF_ASSERT_OK_AND_ASSIGN(Shape lhs, ParseShape(GetParam()[0]));
-  TF_ASSERT_OK_AND_ASSIGN(Shape rhs, ParseShape(GetParam()[1]));
-  TF_ASSERT_OK_AND_ASSIGN(Shape ehs, ParseShape(GetParam()[2]));
+  TF_ASSERT_OK_AND_ASSIGN(const Shape lhs, ParseShape(GetParam()[0]));
+  TF_ASSERT_OK_AND_ASSIGN(const Shape rhs, ParseShape(GetParam()[1]));
+  TF_ASSERT_OK_AND_ASSIGN(const Shape ehs, ParseShape(GetParam()[2]));
   absl::StatusOr<Shape> inferred_status =
       ShapeInference::InferTernaryOpShape(HloOpcode::kClamp, lhs, rhs, ehs);
   if (inferred_status.ok()) {
-    TF_ASSERT_OK_AND_ASSIGN(Shape expected, ParseShape(GetParam()[3]));
+    TF_ASSERT_OK_AND_ASSIGN(const Shape expected, ParseShape(GetParam()[3]));
     EXPECT_TRUE(ShapeUtil::Equal(*inferred_status, expected))
         << "inferred: " << ShapeUtil::HumanString(*inferred_status)
         << " expected: " << ShapeUtil::HumanString(expected);
@@ -4054,10 +4068,10 @@ TEST_P(UnboundedClampOpShapeInferenceTest, UnboundedClamp) {
 }
 
 TEST_F(ShapeInferenceTest, UnboundedClampWithTuple) {
-  TF_ASSERT_OK_AND_ASSIGN(Shape lhs, ParseShape("(f32[2], f32[?])"));
-  TF_ASSERT_OK_AND_ASSIGN(Shape rhs, ParseShape("(f32[?], f32[2])"));
-  TF_ASSERT_OK_AND_ASSIGN(Shape ehs, ParseShape("(f32[2], f32[?])"));
-  TF_ASSERT_OK_AND_ASSIGN(Shape expected, ParseShape("(f32[?], f32[2])"));
+  TF_ASSERT_OK_AND_ASSIGN(const Shape lhs, ParseShape("(f32[2], f32[?])"));
+  TF_ASSERT_OK_AND_ASSIGN(const Shape rhs, ParseShape("(f32[?], f32[2])"));
+  TF_ASSERT_OK_AND_ASSIGN(const Shape ehs, ParseShape("(f32[2], f32[?])"));
+  TF_ASSERT_OK_AND_ASSIGN(const Shape expected, ParseShape("(f32[?], f32[2])"));
   absl::StatusOr<Shape> inferred_status =
       ShapeInference::InferTernaryOpShape(HloOpcode::kClamp, lhs, rhs, ehs);
   EXPECT_THAT(
@@ -4067,12 +4081,13 @@ TEST_F(ShapeInferenceTest, UnboundedClampWithTuple) {
 }
 
 TEST_P(UnboundedCompareOpShapeInferenceTest, UnboundedCompare) {
-  TF_ASSERT_OK_AND_ASSIGN(Shape lhs, ParseShape(GetParam().lhs));
-  TF_ASSERT_OK_AND_ASSIGN(Shape rhs, ParseShape(GetParam().rhs));
+  TF_ASSERT_OK_AND_ASSIGN(const Shape lhs, ParseShape(GetParam().lhs));
+  TF_ASSERT_OK_AND_ASSIGN(const Shape rhs, ParseShape(GetParam().rhs));
   absl::StatusOr<Shape> inferred_status = ShapeInference::InferBinaryOpShape(
       HloOpcode::kCompare, lhs, rhs, GetParam().broadcast_dimensions);
   if (inferred_status.ok()) {
-    TF_ASSERT_OK_AND_ASSIGN(Shape expected, ParseShape(GetParam().expected));
+    TF_ASSERT_OK_AND_ASSIGN(const Shape expected,
+                            ParseShape(GetParam().expected));
     EXPECT_TRUE(ShapeUtil::Equal(*inferred_status, expected))
         << "inferred: " << ShapeUtil::HumanString(*inferred_status)
         << " expected: " << ShapeUtil::HumanString(expected);
@@ -4084,13 +4099,13 @@ TEST_P(UnboundedCompareOpShapeInferenceTest, UnboundedCompare) {
 }
 
 TEST_P(UnboundedConcatenateOpShapeInferenceTest, UnboundedConcatenate) {
-  TF_ASSERT_OK_AND_ASSIGN(Shape operand1, ParseShape(GetParam()[0]));
-  TF_ASSERT_OK_AND_ASSIGN(Shape operand2, ParseShape(GetParam()[1]));
+  TF_ASSERT_OK_AND_ASSIGN(const Shape operand1, ParseShape(GetParam()[0]));
+  TF_ASSERT_OK_AND_ASSIGN(const Shape operand2, ParseShape(GetParam()[1]));
   absl::StatusOr<Shape> inferred_status =
       ShapeInference::InferConcatOpShape({&operand1, &operand2},
                                          /*dimension=*/0);
   if (inferred_status.ok()) {
-    TF_ASSERT_OK_AND_ASSIGN(Shape expected, ParseShape(GetParam()[2]));
+    TF_ASSERT_OK_AND_ASSIGN(const Shape expected, ParseShape(GetParam()[2]));
     EXPECT_TRUE(ShapeUtil::Equal(*inferred_status, expected))
         << "inferred: " << ShapeUtil::HumanString(*inferred_status)
         << " expected: " << ShapeUtil::HumanString(expected);
@@ -4101,9 +4116,9 @@ TEST_P(UnboundedConcatenateOpShapeInferenceTest, UnboundedConcatenate) {
 
 TEST_F(UnboundedConcatenateOpShapeInferenceTest,
        UnboundedConcatenateMismatchedDimensions) {
-  TF_ASSERT_OK_AND_ASSIGN(Shape operand1, ParseShape("f32[2, ?]"));
-  TF_ASSERT_OK_AND_ASSIGN(Shape operand2, ParseShape("f32[2, 3]"));
-  TF_ASSERT_OK_AND_ASSIGN(Shape operand3, ParseShape("f32[2, 4]"));
+  TF_ASSERT_OK_AND_ASSIGN(const Shape operand1, ParseShape("f32[2, ?]"));
+  TF_ASSERT_OK_AND_ASSIGN(const Shape operand2, ParseShape("f32[2, 3]"));
+  TF_ASSERT_OK_AND_ASSIGN(const Shape operand3, ParseShape("f32[2, 4]"));
   absl::StatusOr<Shape> inferred_status =
       ShapeInference::InferConcatOpShape({&operand1, &operand2, &operand3},
                                          /*dimension=*/0);
@@ -4113,9 +4128,9 @@ TEST_F(UnboundedConcatenateOpShapeInferenceTest,
 
 TEST_F(UnboundedConcatenateOpShapeInferenceTest,
        UnboundedConcatenateMismatchedBoundSizes) {
-  TF_ASSERT_OK_AND_ASSIGN(Shape operand1, ParseShape("f32[2, ?]"));
-  TF_ASSERT_OK_AND_ASSIGN(Shape operand2, ParseShape("f32[2, <=3]"));
-  TF_ASSERT_OK_AND_ASSIGN(Shape operand3, ParseShape("f32[2, <=4]"));
+  TF_ASSERT_OK_AND_ASSIGN(const Shape operand1, ParseShape("f32[2, ?]"));
+  TF_ASSERT_OK_AND_ASSIGN(const Shape operand2, ParseShape("f32[2, <=3]"));
+  TF_ASSERT_OK_AND_ASSIGN(const Shape operand3, ParseShape("f32[2, <=4]"));
   absl::StatusOr<Shape> inferred_status =
       ShapeInference::InferConcatOpShape({&operand1, &operand2, &operand3},
                                          /*dimension=*/0);
@@ -4124,19 +4139,19 @@ TEST_F(UnboundedConcatenateOpShapeInferenceTest,
 }
 
 TEST_F(ShapeInferenceTest, UnboundedConvert) {
-  TF_ASSERT_OK_AND_ASSIGN(Shape operand, ParseShape("f32[?]"));
-  TF_ASSERT_OK_AND_ASSIGN(Shape expected, ParseShape("f64[?]"));
-  TF_ASSERT_OK_AND_ASSIGN(Shape result, ShapeInference::InferConvertShape(
-                                            operand, PrimitiveType::F64));
+  TF_ASSERT_OK_AND_ASSIGN(const Shape operand, ParseShape("f32[?]"));
+  TF_ASSERT_OK_AND_ASSIGN(const Shape expected, ParseShape("f64[?]"));
+  TF_ASSERT_OK_AND_ASSIGN(const Shape result, ShapeInference::InferConvertShape(
+                                                  operand, PrimitiveType::F64));
   EXPECT_TRUE(ShapeUtil::Equal(result, expected))
       << "inferred: " << ShapeUtil::HumanString(result)
       << " expected: " << ShapeUtil::HumanString(expected);
 }
 
 TEST_F(ShapeInferenceTest, UnboundedConvolution) {
-  TF_ASSERT_OK_AND_ASSIGN(Shape lhs, ParseShape("f32[?, 2, ?, 128]"));
-  TF_ASSERT_OK_AND_ASSIGN(Shape rhs, ParseShape("f32[2, 2, <=128, 8]"));
-  TF_ASSERT_OK_AND_ASSIGN(Shape expected, ParseShape("f32[?, 1, ?, 8]"));
+  TF_ASSERT_OK_AND_ASSIGN(const Shape lhs, ParseShape("f32[?, 2, ?, 128]"));
+  TF_ASSERT_OK_AND_ASSIGN(const Shape rhs, ParseShape("f32[2, 2, <=128, 8]"));
+  TF_ASSERT_OK_AND_ASSIGN(const Shape expected, ParseShape("f32[?, 1, ?, 8]"));
 
   ConvolutionDimensionNumbers dnums;
   dnums.set_input_batch_dimension(0);
@@ -4153,14 +4168,14 @@ TEST_F(ShapeInferenceTest, UnboundedConvolution) {
   dnums.set_kernel_output_feature_dimension(3);
 
   TF_ASSERT_OK_AND_ASSIGN(
-      Window window,
+      const Window window,
       ShapeInference::InferWindowFromDimensions(
           /*window_dimensions=*/{2, 2}, /*window_strides=*/{1, 1},
           MakePadding(/*input_dimensions=*/{2, Shape::kUnboundedSize},
                       /*window_dimensions=*/{2, 2},
                       /*window_strides=*/{1, 1}, Padding::kValid),
           /*lhs_dilation=*/{}, /*rhs_dilation=*/{}));
-  TF_ASSERT_OK_AND_ASSIGN(Shape result_shape,
+  TF_ASSERT_OK_AND_ASSIGN(const Shape result_shape,
                           ShapeInference::InferConvolveShape(
                               lhs, rhs, /*feature_group_count=*/1,
                               /*batch_group_count=*/1, window, dnums,
@@ -4171,12 +4186,13 @@ TEST_F(ShapeInferenceTest, UnboundedConvolution) {
 }
 
 TEST_P(UnboundedBinaryOpShapeInferenceTest, UnboundedDiv) {
-  TF_ASSERT_OK_AND_ASSIGN(Shape lhs, ParseShape(GetParam().lhs));
-  TF_ASSERT_OK_AND_ASSIGN(Shape rhs, ParseShape(GetParam().rhs));
+  TF_ASSERT_OK_AND_ASSIGN(const Shape lhs, ParseShape(GetParam().lhs));
+  TF_ASSERT_OK_AND_ASSIGN(const Shape rhs, ParseShape(GetParam().rhs));
   absl::StatusOr<Shape> inferred_status = ShapeInference::InferBinaryOpShape(
       HloOpcode::kDivide, lhs, rhs, GetParam().broadcast_dimensions);
   if (inferred_status.ok()) {
-    TF_ASSERT_OK_AND_ASSIGN(Shape expected, ParseShape(GetParam().expected));
+    TF_ASSERT_OK_AND_ASSIGN(const Shape expected,
+                            ParseShape(GetParam().expected));
     EXPECT_TRUE(ShapeUtil::Equal(*inferred_status, expected))
         << "inferred: " << ShapeUtil::HumanString(*inferred_status)
         << " expected: " << ShapeUtil::HumanString(expected);
@@ -4188,16 +4204,16 @@ TEST_P(UnboundedBinaryOpShapeInferenceTest, UnboundedDiv) {
 }
 
 TEST_F(ShapeInferenceTest, UnboundedDot) {
-  TF_ASSERT_OK_AND_ASSIGN(Shape lhs, ParseShape("f32[?, 10]"));
-  TF_ASSERT_OK_AND_ASSIGN(Shape rhs, ParseShape("f32[?, 10]"));
-  TF_ASSERT_OK_AND_ASSIGN(Shape expected, ParseShape("f32[?, 10]"));
+  TF_ASSERT_OK_AND_ASSIGN(const Shape lhs, ParseShape("f32[?, 10]"));
+  TF_ASSERT_OK_AND_ASSIGN(const Shape rhs, ParseShape("f32[?, 10]"));
+  TF_ASSERT_OK_AND_ASSIGN(const Shape expected, ParseShape("f32[?, 10]"));
 
   DotDimensionNumbers dnums;
   dnums.add_lhs_contracting_dimensions(1);
   dnums.add_rhs_contracting_dimensions(0);
 
   TF_ASSERT_OK_AND_ASSIGN(
-      Shape result_shape,
+      const Shape result_shape,
       ShapeInference::InferDotOpShape(lhs, rhs, dnums,
                                       /*preferred_element_type=*/std::nullopt));
   EXPECT_TRUE(ShapeUtil::Equal(result_shape, expected))
@@ -4206,9 +4222,9 @@ TEST_F(ShapeInferenceTest, UnboundedDot) {
 }
 
 TEST_F(ShapeInferenceTest, UnboundedDotGeneral) {
-  TF_ASSERT_OK_AND_ASSIGN(Shape lhs, ParseShape("f32[?, <=3, ?]"));
-  TF_ASSERT_OK_AND_ASSIGN(Shape rhs, ParseShape("f32[2, 4, 5]"));
-  TF_ASSERT_OK_AND_ASSIGN(Shape expected, ParseShape("f32[?, <=3, 5]"));
+  TF_ASSERT_OK_AND_ASSIGN(const Shape lhs, ParseShape("f32[?, <=3, ?]"));
+  TF_ASSERT_OK_AND_ASSIGN(const Shape rhs, ParseShape("f32[2, 4, 5]"));
+  TF_ASSERT_OK_AND_ASSIGN(const Shape expected, ParseShape("f32[?, <=3, 5]"));
 
   DotDimensionNumbers dnums;
   dnums.add_lhs_batch_dimensions(0);
@@ -4217,7 +4233,7 @@ TEST_F(ShapeInferenceTest, UnboundedDotGeneral) {
   dnums.add_rhs_contracting_dimensions(1);
 
   TF_ASSERT_OK_AND_ASSIGN(
-      Shape result_shape,
+      const Shape result_shape,
       ShapeInference::InferDotOpShape(lhs, rhs, dnums,
                                       /*preferred_element_type=*/std::nullopt));
   EXPECT_TRUE(ShapeUtil::Equal(result_shape, expected))
@@ -4226,9 +4242,10 @@ TEST_F(ShapeInferenceTest, UnboundedDotGeneral) {
 }
 
 TEST_F(ShapeInferenceTest, UnboundedGather) {
-  TF_ASSERT_OK_AND_ASSIGN(Shape operand, ParseShape("f32[3, 4, 2]"));
-  TF_ASSERT_OK_AND_ASSIGN(Shape start_indices, ParseShape("s32[?, ?, ?]"));
-  TF_ASSERT_OK_AND_ASSIGN(Shape expected, ParseShape("f32[?, ?, 2, 2]"));
+  TF_ASSERT_OK_AND_ASSIGN(const Shape operand, ParseShape("f32[3, 4, 2]"));
+  TF_ASSERT_OK_AND_ASSIGN(const Shape start_indices,
+                          ParseShape("s32[?, ?, ?]"));
+  TF_ASSERT_OK_AND_ASSIGN(const Shape expected, ParseShape("f32[?, ?, 2, 2]"));
 
   GatherDimensionNumbers dimension_numbers;
   dimension_numbers.add_offset_dims(2);
@@ -4238,7 +4255,7 @@ TEST_F(ShapeInferenceTest, UnboundedGather) {
   dimension_numbers.add_start_index_map(0);
   dimension_numbers.set_index_vector_dim(2);
 
-  TF_ASSERT_OK_AND_ASSIGN(Shape result_shape,
+  TF_ASSERT_OK_AND_ASSIGN(const Shape result_shape,
                           ShapeInference::InferGatherShape(
                               operand, start_indices, dimension_numbers,
                               /*slice_sizes=*/{1, 2, 2}));
@@ -4248,12 +4265,13 @@ TEST_F(ShapeInferenceTest, UnboundedGather) {
 }
 
 TEST_P(UnboundedBinaryOpShapeInferenceTest, UnboundedMax) {
-  TF_ASSERT_OK_AND_ASSIGN(Shape lhs, ParseShape(GetParam().lhs));
-  TF_ASSERT_OK_AND_ASSIGN(Shape rhs, ParseShape(GetParam().rhs));
+  TF_ASSERT_OK_AND_ASSIGN(const Shape lhs, ParseShape(GetParam().lhs));
+  TF_ASSERT_OK_AND_ASSIGN(const Shape rhs, ParseShape(GetParam().rhs));
   absl::StatusOr<Shape> inferred_status = ShapeInference::InferBinaryOpShape(
       HloOpcode::kMaximum, lhs, rhs, GetParam().broadcast_dimensions);
   if (inferred_status.ok()) {
-    TF_ASSERT_OK_AND_ASSIGN(Shape expected, ParseShape(GetParam().expected));
+    TF_ASSERT_OK_AND_ASSIGN(const Shape expected,
+                            ParseShape(GetParam().expected));
     EXPECT_TRUE(ShapeUtil::Equal(*inferred_status, expected))
         << "inferred: " << ShapeUtil::HumanString(*inferred_status)
         << " expected: " << ShapeUtil::HumanString(expected);
@@ -4265,12 +4283,13 @@ TEST_P(UnboundedBinaryOpShapeInferenceTest, UnboundedMax) {
 }
 
 TEST_P(UnboundedBinaryOpShapeInferenceTest, UnboundedMul) {
-  TF_ASSERT_OK_AND_ASSIGN(Shape lhs, ParseShape(GetParam().lhs));
-  TF_ASSERT_OK_AND_ASSIGN(Shape rhs, ParseShape(GetParam().rhs));
+  TF_ASSERT_OK_AND_ASSIGN(const Shape lhs, ParseShape(GetParam().lhs));
+  TF_ASSERT_OK_AND_ASSIGN(const Shape rhs, ParseShape(GetParam().rhs));
   absl::StatusOr<Shape> inferred_status = ShapeInference::InferBinaryOpShape(
       HloOpcode::kMultiply, lhs, rhs, GetParam().broadcast_dimensions);
   if (inferred_status.ok()) {
-    TF_ASSERT_OK_AND_ASSIGN(Shape expected, ParseShape(GetParam().expected));
+    TF_ASSERT_OK_AND_ASSIGN(const Shape expected,
+                            ParseShape(GetParam().expected));
     EXPECT_TRUE(ShapeUtil::Equal(*inferred_status, expected))
         << "inferred: " << ShapeUtil::HumanString(*inferred_status)
         << " expected: " << ShapeUtil::HumanString(expected);
@@ -4282,9 +4301,9 @@ TEST_P(UnboundedBinaryOpShapeInferenceTest, UnboundedMul) {
 }
 
 TEST_F(ShapeInferenceTest, UnboundedPad) {
-  TF_ASSERT_OK_AND_ASSIGN(Shape operand, ParseShape("f32[?, 10]"));
-  TF_ASSERT_OK_AND_ASSIGN(Shape padding_value, ParseShape("f32[]"));
-  TF_ASSERT_OK_AND_ASSIGN(Shape expected, ParseShape("f32[?, 21]"));
+  TF_ASSERT_OK_AND_ASSIGN(const Shape operand, ParseShape("f32[?, 10]"));
+  TF_ASSERT_OK_AND_ASSIGN(const Shape padding_value, ParseShape("f32[]"));
+  TF_ASSERT_OK_AND_ASSIGN(const Shape expected, ParseShape("f32[?, 21]"));
 
   PaddingConfig padding_config;
   for (int i = 0; i < 2; i++) {
@@ -4295,7 +4314,7 @@ TEST_F(ShapeInferenceTest, UnboundedPad) {
   }
 
   TF_ASSERT_OK_AND_ASSIGN(
-      Shape result_shape,
+      const Shape result_shape,
       ShapeInference::InferPadShape(operand, padding_value, padding_config));
   EXPECT_TRUE(ShapeUtil::Equal(result_shape, expected))
       << "inferred: " << ShapeUtil::HumanString(result_shape)
@@ -4303,12 +4322,13 @@ TEST_F(ShapeInferenceTest, UnboundedPad) {
 }
 
 TEST_P(UnboundedBinaryOpShapeInferenceTest, UnboundedPow) {
-  TF_ASSERT_OK_AND_ASSIGN(Shape lhs, ParseShape(GetParam().lhs));
-  TF_ASSERT_OK_AND_ASSIGN(Shape rhs, ParseShape(GetParam().rhs));
+  TF_ASSERT_OK_AND_ASSIGN(const Shape lhs, ParseShape(GetParam().lhs));
+  TF_ASSERT_OK_AND_ASSIGN(const Shape rhs, ParseShape(GetParam().rhs));
   absl::StatusOr<Shape> inferred_status = ShapeInference::InferBinaryOpShape(
       HloOpcode::kPower, lhs, rhs, GetParam().broadcast_dimensions);
   if (inferred_status.ok()) {
-    TF_ASSERT_OK_AND_ASSIGN(Shape expected, ParseShape(GetParam().expected));
+    TF_ASSERT_OK_AND_ASSIGN(const Shape expected,
+                            ParseShape(GetParam().expected));
     EXPECT_TRUE(ShapeUtil::Equal(*inferred_status, expected))
         << "inferred: " << ShapeUtil::HumanString(*inferred_status)
         << " expected: " << ShapeUtil::HumanString(expected);
@@ -4320,15 +4340,15 @@ TEST_P(UnboundedBinaryOpShapeInferenceTest, UnboundedPow) {
 }
 
 TEST_F(ShapeInferenceTest, UnboundedReduce) {
-  TF_ASSERT_OK_AND_ASSIGN(Shape input0, ParseShape("f32[7, 5]"));
-  TF_ASSERT_OK_AND_ASSIGN(Shape input1, ParseShape("f32[?, 5]"));
-  TF_ASSERT_OK_AND_ASSIGN(Shape input2, ParseShape("f32[7, ?]"));
+  TF_ASSERT_OK_AND_ASSIGN(const Shape input0, ParseShape("f32[7, 5]"));
+  TF_ASSERT_OK_AND_ASSIGN(const Shape input1, ParseShape("f32[?, 5]"));
+  TF_ASSERT_OK_AND_ASSIGN(const Shape input2, ParseShape("f32[7, ?]"));
 
   ProgramShape to_apply = ShapeUtil::MakeProgramShape(
       {f32_, f32_, f32_, f32_, f32_, f32_},
       ShapeUtil::MakeTupleShape({f32_, f32_, f32_}));
   TF_ASSERT_OK_AND_ASSIGN(
-      Shape result_shape,
+      const Shape result_shape,
       ShapeInference::InferReduceShape(
           {&input0, &input1, &input2, &f32_, &f32_, &f32_}, {1}, to_apply));
   Shape shape = ShapeUtil::MakeShape(F32, {7});
@@ -4339,9 +4359,9 @@ TEST_F(ShapeInferenceTest, UnboundedReduce) {
 }
 
 TEST_F(ShapeInferenceTest, UnboundedReduceInvalidReduceDimension) {
-  TF_ASSERT_OK_AND_ASSIGN(Shape input0, ParseShape("f32[7, 5]"));
-  TF_ASSERT_OK_AND_ASSIGN(Shape input1, ParseShape("f32[?, 5]"));
-  TF_ASSERT_OK_AND_ASSIGN(Shape input2, ParseShape("f32[5, ?]"));
+  TF_ASSERT_OK_AND_ASSIGN(const Shape input0, ParseShape("f32[7, 5]"));
+  TF_ASSERT_OK_AND_ASSIGN(const Shape input1, ParseShape("f32[?, 5]"));
+  TF_ASSERT_OK_AND_ASSIGN(const Shape input2, ParseShape("f32[5, ?]"));
 
   ProgramShape to_apply = ShapeUtil::MakeProgramShape(
       {f32_, f32_, f32_, f32_, f32_, f32_},
@@ -4353,8 +4373,8 @@ TEST_F(ShapeInferenceTest, UnboundedReduceInvalidReduceDimension) {
 }
 
 TEST_F(ShapeInferenceTest, UnboundedReduceWindow) {
-  TF_ASSERT_OK_AND_ASSIGN(Shape input, ParseShape("f32[?, 4, 8]"));
-  TF_ASSERT_OK_AND_ASSIGN(Shape expected, ParseShape("f32[?, 3, 5]"));
+  TF_ASSERT_OK_AND_ASSIGN(const Shape input, ParseShape("f32[?, 4, 8]"));
+  TF_ASSERT_OK_AND_ASSIGN(const Shape expected, ParseShape("f32[?, 3, 5]"));
 
   Window window;
   WindowDimension dim0, dim1, dim2;
@@ -4372,7 +4392,7 @@ TEST_F(ShapeInferenceTest, UnboundedReduceWindow) {
   *window.add_dimensions() = dim2;
 
   ProgramShape body = ShapeUtil::MakeProgramShape({f32_, f32_}, f32_);
-  TF_ASSERT_OK_AND_ASSIGN(Shape infered_shape,
+  TF_ASSERT_OK_AND_ASSIGN(const Shape infered_shape,
                           ShapeInference::InferReduceWindowShape(
                               input, /*init_value=*/f32_, window, body));
   EXPECT_TRUE(ShapeUtil::Equal(infered_shape, expected))
@@ -4381,18 +4401,19 @@ TEST_F(ShapeInferenceTest, UnboundedReduceWindow) {
 }
 
 TEST_F(ShapeInferenceTest, UnboundedReshape) {
-  TF_ASSERT_OK_AND_ASSIGN(Shape operand, ParseShape("f32[?]"));
-  TF_ASSERT_OK_AND_ASSIGN(Shape expected, ParseShape("f32[2,3]"));
-  TF_ASSERT_OK_AND_ASSIGN(Shape inferred, ShapeInference::InferReshapeShape(
-                                              operand, /*dimensions=*/{0},
-                                              /*new_sizes=*/{2, 3}, -1));
+  TF_ASSERT_OK_AND_ASSIGN(const Shape operand, ParseShape("f32[?]"));
+  TF_ASSERT_OK_AND_ASSIGN(const Shape expected, ParseShape("f32[2,3]"));
+  TF_ASSERT_OK_AND_ASSIGN(
+      const Shape inferred,
+      ShapeInference::InferReshapeShape(operand, /*dimensions=*/{0},
+                                        /*new_sizes=*/{2, 3}, -1));
   ASSERT_TRUE(ShapeUtil::Equal(inferred, expected))
       << "inferred: " << ShapeUtil::HumanString(inferred)
       << " expected: " << ShapeUtil::HumanString(expected);
 }
 
 TEST_F(ShapeInferenceTest, UnboundedReshapeUnsupportedOutputShape) {
-  TF_ASSERT_OK_AND_ASSIGN(Shape operand, ParseShape("f32[6]"));
+  TF_ASSERT_OK_AND_ASSIGN(const Shape operand, ParseShape("f32[6]"));
   absl::StatusOr<Shape> inferred_status = ShapeInference::InferReshapeShape(
       operand, /*dimensions=*/{0},
       /*new_sizes=*/{Shape::kUnboundedSize, Shape::kUnboundedSize}, -1);
@@ -4402,8 +4423,8 @@ TEST_F(ShapeInferenceTest, UnboundedReshapeUnsupportedOutputShape) {
 }
 
 TEST_F(ShapeInferenceTest, UnboundedReshapeUnsupportedMixOfDynamism) {
-  TF_ASSERT_OK_AND_ASSIGN(Shape operand, ParseShape("f32[?, <=3]"));
-  TF_ASSERT_OK_AND_ASSIGN(Shape expected, ParseShape("f32[<=3]"));
+  TF_ASSERT_OK_AND_ASSIGN(const Shape operand, ParseShape("f32[?, <=3]"));
+  TF_ASSERT_OK_AND_ASSIGN(const Shape expected, ParseShape("f32[<=3]"));
   auto inferred_status =
       ShapeInference::InferReshapeShape(operand, /*dimensions=*/{0},
                                         /*new_sizes=*/{3}, -1);
@@ -4413,13 +4434,13 @@ TEST_F(ShapeInferenceTest, UnboundedReshapeUnsupportedMixOfDynamism) {
 }
 
 TEST_P(UnboundedSelectOpShapeInferenceTest, UnboundedSelect) {
-  TF_ASSERT_OK_AND_ASSIGN(Shape lhs, ParseShape(GetParam()[0]));
-  TF_ASSERT_OK_AND_ASSIGN(Shape rhs, ParseShape(GetParam()[1]));
-  TF_ASSERT_OK_AND_ASSIGN(Shape ehs, ParseShape(GetParam()[2]));
+  TF_ASSERT_OK_AND_ASSIGN(const Shape lhs, ParseShape(GetParam()[0]));
+  TF_ASSERT_OK_AND_ASSIGN(const Shape rhs, ParseShape(GetParam()[1]));
+  TF_ASSERT_OK_AND_ASSIGN(const Shape ehs, ParseShape(GetParam()[2]));
   absl::StatusOr<Shape> inferred_status =
       ShapeInference::InferTernaryOpShape(HloOpcode::kSelect, lhs, rhs, ehs);
   if (inferred_status.ok()) {
-    TF_ASSERT_OK_AND_ASSIGN(Shape expected, ParseShape(GetParam()[3]));
+    TF_ASSERT_OK_AND_ASSIGN(const Shape expected, ParseShape(GetParam()[3]));
     EXPECT_TRUE(ShapeUtil::Equal(*inferred_status, expected))
         << "inferred: " << ShapeUtil::HumanString(*inferred_status)
         << " expected: " << ShapeUtil::HumanString(expected);
@@ -4429,10 +4450,10 @@ TEST_P(UnboundedSelectOpShapeInferenceTest, UnboundedSelect) {
 }
 
 TEST_F(ShapeInferenceTest, UnboundedSelectWithTupleUnsupported) {
-  TF_ASSERT_OK_AND_ASSIGN(Shape lhs, ParseShape("(pred[2], pred[?])"));
-  TF_ASSERT_OK_AND_ASSIGN(Shape rhs, ParseShape("(f32[?], f32[2])"));
-  TF_ASSERT_OK_AND_ASSIGN(Shape ehs, ParseShape("(f32[2], f32[?])"));
-  TF_ASSERT_OK_AND_ASSIGN(Shape expected, ParseShape("(f32[?], f32[2])"));
+  TF_ASSERT_OK_AND_ASSIGN(const Shape lhs, ParseShape("(pred[2], pred[?])"));
+  TF_ASSERT_OK_AND_ASSIGN(const Shape rhs, ParseShape("(f32[?], f32[2])"));
+  TF_ASSERT_OK_AND_ASSIGN(const Shape ehs, ParseShape("(f32[2], f32[?])"));
+  TF_ASSERT_OK_AND_ASSIGN(const Shape expected, ParseShape("(f32[?], f32[2])"));
   absl::StatusOr<Shape> inferred_status =
       ShapeInference::InferTernaryOpShape(HloOpcode::kSelect, lhs, rhs, ehs);
   EXPECT_THAT(inferred_status.status().message(),
@@ -4441,24 +4462,26 @@ TEST_F(ShapeInferenceTest, UnboundedSelectWithTupleUnsupported) {
 }
 
 TEST_F(ShapeInferenceTest, UnboundedSlice) {
-  TF_ASSERT_OK_AND_ASSIGN(Shape operand, ParseShape("f32[1, <=3, ?]"));
-  TF_ASSERT_OK_AND_ASSIGN(Shape expected, ParseShape("f32[1, <=2, 3]"));
-  TF_ASSERT_OK_AND_ASSIGN(Shape result_shape, ShapeInference::InferSliceShape(
-                                                  operand, /*starts=*/{0, 1, 2},
-                                                  /*limits=*/{1, 3, 5},
-                                                  /*strides=*/{1, 1, 1}));
+  TF_ASSERT_OK_AND_ASSIGN(const Shape operand, ParseShape("f32[1, <=3, ?]"));
+  TF_ASSERT_OK_AND_ASSIGN(const Shape expected, ParseShape("f32[1, <=2, 3]"));
+  TF_ASSERT_OK_AND_ASSIGN(
+      const Shape result_shape,
+      ShapeInference::InferSliceShape(operand, /*starts=*/{0, 1, 2},
+                                      /*limits=*/{1, 3, 5},
+                                      /*strides=*/{1, 1, 1}));
   EXPECT_TRUE(ShapeUtil::Equal(result_shape, expected))
       << "inferred: " << ShapeUtil::HumanString(result_shape)
       << " expected: " << ShapeUtil::HumanString(expected);
 }
 
 TEST_P(UnboundedBinaryOpShapeInferenceTest, UnboundedSub) {
-  TF_ASSERT_OK_AND_ASSIGN(Shape lhs, ParseShape(GetParam().lhs));
-  TF_ASSERT_OK_AND_ASSIGN(Shape rhs, ParseShape(GetParam().rhs));
+  TF_ASSERT_OK_AND_ASSIGN(const Shape lhs, ParseShape(GetParam().lhs));
+  TF_ASSERT_OK_AND_ASSIGN(const Shape rhs, ParseShape(GetParam().rhs));
   absl::StatusOr<Shape> inferred_status = ShapeInference::InferBinaryOpShape(
       HloOpcode::kSubtract, lhs, rhs, GetParam().broadcast_dimensions);
   if (inferred_status.ok()) {
-    TF_ASSERT_OK_AND_ASSIGN(Shape expected, ParseShape(GetParam().expected));
+    TF_ASSERT_OK_AND_ASSIGN(const Shape expected,
+                            ParseShape(GetParam().expected));
     EXPECT_TRUE(ShapeUtil::Equal(*inferred_status, expected))
         << "inferred: " << ShapeUtil::HumanString(*inferred_status)
         << " expected: " << ShapeUtil::HumanString(expected);
@@ -4470,10 +4493,11 @@ TEST_P(UnboundedBinaryOpShapeInferenceTest, UnboundedSub) {
 }
 
 TEST_F(ShapeInferenceTest, UnboundedScatter) {
-  TF_ASSERT_OK_AND_ASSIGN(Shape input, ParseShape("f32[?, ?, ?]"));
-  TF_ASSERT_OK_AND_ASSIGN(Shape scatter_indices, ParseShape("s32[?, ?, ?]"));
-  TF_ASSERT_OK_AND_ASSIGN(Shape updates, ParseShape("f32[?, ?, ?, ?]"));
-  TF_ASSERT_OK_AND_ASSIGN(Shape expected, ParseShape("f32[?, ?, ?]"));
+  TF_ASSERT_OK_AND_ASSIGN(const Shape input, ParseShape("f32[?, ?, ?]"));
+  TF_ASSERT_OK_AND_ASSIGN(const Shape scatter_indices,
+                          ParseShape("s32[?, ?, ?]"));
+  TF_ASSERT_OK_AND_ASSIGN(const Shape updates, ParseShape("f32[?, ?, ?, ?]"));
+  TF_ASSERT_OK_AND_ASSIGN(const Shape expected, ParseShape("f32[?, ?, ?]"));
 
   const ProgramShape to_apply = ShapeUtil::MakeProgramShape({f32_, f32_}, f32_);
 
@@ -4486,7 +4510,7 @@ TEST_F(ShapeInferenceTest, UnboundedScatter) {
   dimension_numbers.set_index_vector_dim(2);
 
   TF_ASSERT_OK_AND_ASSIGN(
-      Shape result,
+      const Shape result,
       ShapeInference::InferScatterShape({&input, &scatter_indices, &updates},
                                         to_apply, dimension_numbers));
   EXPECT_TRUE(ShapeUtil::Equal(result, expected))
@@ -4495,11 +4519,11 @@ TEST_F(ShapeInferenceTest, UnboundedScatter) {
 }
 
 TEST_F(ShapeInferenceTest, UnboundedTranspose) {
-  TF_ASSERT_OK_AND_ASSIGN(Shape operand,
+  TF_ASSERT_OK_AND_ASSIGN(const Shape operand,
                           ParseShape("f32[1, ?, 2, ?, <=2]{4,3,2,1,0}"));
-  TF_ASSERT_OK_AND_ASSIGN(Shape expected,
+  TF_ASSERT_OK_AND_ASSIGN(const Shape expected,
                           ParseShape("f32[<=2, 1, ?, 2, ?]{0,2,3,4,1}"));
-  TF_ASSERT_OK_AND_ASSIGN(Shape result_shape,
+  TF_ASSERT_OK_AND_ASSIGN(const Shape result_shape,
                           ShapeInference::InferTransposeShape(
                               operand, /*dimensions=*/{4, 0, 3, 2, 1}));
   EXPECT_TRUE(ShapeUtil::Equal(result_shape, expected))
@@ -4508,10 +4532,10 @@ TEST_F(ShapeInferenceTest, UnboundedTranspose) {
 }
 
 TEST_F(ShapeInferenceTest, UnboundedTransposeRank1) {
-  TF_ASSERT_OK_AND_ASSIGN(Shape operand, ParseShape("f32[?]"));
-  TF_ASSERT_OK_AND_ASSIGN(Shape expected, ParseShape("f32[?]"));
+  TF_ASSERT_OK_AND_ASSIGN(const Shape operand, ParseShape("f32[?]"));
+  TF_ASSERT_OK_AND_ASSIGN(const Shape expected, ParseShape("f32[?]"));
   TF_ASSERT_OK_AND_ASSIGN(
-      Shape result_shape,
+      const Shape result_shape,
       ShapeInference::InferTransposeShape(operand, /*dimensions=*/{0}));
   EXPECT_TRUE(ShapeUtil::Equal(result_shape, expected))
       << "inferred: " << ShapeUtil::HumanString(result_shape)
