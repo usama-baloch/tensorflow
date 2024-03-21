@@ -139,6 +139,10 @@ class UnboundedBinaryOpShapeInferenceTest
 class UnboundedCompareOpShapeInferenceTest
     : public ::testing::TestWithParam<BinaryOpTestCase> {};
 
+// Subclass for testing unbounded dynamic complex op
+class UnboundedComplexOpShapeInferenceTest
+    : public ::testing::TestWithParam<BinaryOpTestCase> {};
+
 // Subclass for testing unbounded dynamic concatenate op
 class UnboundedConcatenateOpShapeInferenceTest
     : public ::testing::TestWithParam<std::vector<std::string>> {};
@@ -3927,6 +3931,17 @@ TEST_P(UnboundedAndOpShapeInferenceTest, UnboundedAnd) {
   }
 }
 
+TEST_F(ShapeInferenceTest, UnboundedBitcastConvert) {
+  TF_ASSERT_OK_AND_ASSIGN(const Shape operand, ParseShape("f32[?, 10]"));
+  TF_ASSERT_OK_AND_ASSIGN(
+      const Shape inferred_status,
+      ShapeInference::InferBitcastConvertShape(operand, PrimitiveType::F16));
+  TF_ASSERT_OK_AND_ASSIGN(const Shape expected, ParseShape("f16[?, 10, 2]"));
+  EXPECT_TRUE(ShapeUtil::Equal(inferred_status, expected))
+      << "inferred: " << ShapeUtil::HumanString(inferred_status)
+      << " expected: " << ShapeUtil::HumanString(expected);
+}
+
 TEST_F(ShapeInferenceTest, UnboundedBatchNormGrad) {
   TF_ASSERT_OK_AND_ASSIGN(Shape operand, ParseShape("f32[?, ?, 7]"));
   TF_ASSERT_OK_AND_ASSIGN(Shape grad_operand, ParseShape("f32[?, ?, 7]"));
@@ -4073,6 +4088,24 @@ TEST_P(UnboundedCompareOpShapeInferenceTest, UnboundedCompare) {
       HloOpcode::kCompare, lhs, rhs, GetParam().broadcast_dimensions);
   if (inferred_status.ok()) {
     TF_ASSERT_OK_AND_ASSIGN(Shape expected, ParseShape(GetParam().expected));
+    EXPECT_TRUE(ShapeUtil::Equal(*inferred_status, expected))
+        << "inferred: " << ShapeUtil::HumanString(*inferred_status)
+        << " expected: " << ShapeUtil::HumanString(expected);
+  } else {
+    ASSERT_TRUE(GetParam().error_message.has_value());
+    EXPECT_THAT(inferred_status.status().message(),
+                HasSubstr(*GetParam().error_message));
+  }
+}
+
+TEST_P(UnboundedComplexOpShapeInferenceTest, UnboundedComplex) {
+  TF_ASSERT_OK_AND_ASSIGN(const Shape real, ParseShape(GetParam().lhs));
+  TF_ASSERT_OK_AND_ASSIGN(const Shape imag, ParseShape(GetParam().rhs));
+  absl::StatusOr<Shape> inferred_status = ShapeInference::InferBinaryOpShape(
+      HloOpcode::kComplex, real, imag, GetParam().broadcast_dimensions);
+  if (inferred_status.ok()) {
+    TF_ASSERT_OK_AND_ASSIGN(const Shape expected,
+                            ParseShape(GetParam().expected));
     EXPECT_TRUE(ShapeUtil::Equal(*inferred_status, expected))
         << "inferred: " << ShapeUtil::HumanString(*inferred_status)
         << " expected: " << ShapeUtil::HumanString(expected);
@@ -4596,6 +4629,36 @@ INSTANTIATE_TEST_SUITE_P(UnboundedDynamism,
                               {"f32[?]", "f32[?]", {}, "pred[?]"},
                               // 1   | ?,3 | [0]   | ?,3
                               {"f32[1]", "f32[?,3]", zero_array, "pred[?,3]"},
+                              // 2   | ?,3 | [0]   | err
+                              {"f32[2]", "f32[?,3]", zero_array, "",
+                               kBroadcastDimensionMismatchErrorMessage},
+                              // ?,2 | ?,3 | []    | err
+                              {"f32[?,2]",
+                               "f32[?,3]",
+                               {},
+                               "",
+                               kIncompatibleBinaryOpShapeErrorMessage}}));
+
+INSTANTIATE_TEST_SUITE_P(UnboundedDynamism,
+                         UnboundedComplexOpShapeInferenceTest,
+                         ::testing::ValuesIn<BinaryOpTestCase>(
+                             {// LHS | RHS | bdims | Res
+                              // 1   | ?   | []    | ?
+                              {"f32[1]", "f32[?]", {}, "c64[?]"},
+                              // ?   | 1   | []    | ?
+                              {"f32[?]", "f32[1]", {}, "c64[?]"},
+                              // 2   | ?   | []    | 2
+                              {"f32[2]", "f32[?]", {}, "c64[2]"},
+                              // ?   | 2   | []    | 2
+                              {"f32[?]", "f32[2]", {}, "c64[2]"},
+                              // <=2 | ?   | []    | <=2
+                              {"f32[<=2]", "f32[?]", {}, "c64[<=2]"},
+                              // ?   | <=2 | []    | <=2
+                              {"f32[?]", "f32[<=2]", {}, "c64[<=2]"},
+                              // ?   | ?   | []    | ?
+                              {"f32[?]", "f32[?]", {}, "c64[?]"},
+                              // 1   | ?,3 | [0]   | ?,3
+                              {"f32[1]", "f32[?,3]", zero_array, "c64[?,3]"},
                               // 2   | ?,3 | [0]   | err
                               {"f32[2]", "f32[?,3]", zero_array, "",
                                kBroadcastDimensionMismatchErrorMessage},
