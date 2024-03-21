@@ -17,6 +17,7 @@ limitations under the License.
 
 #include <cstdint>
 #include <memory>
+#include <utility>
 #include <variant>
 #include <vector>
 
@@ -64,22 +65,51 @@ ENTRY main {
 
   EXPECT_TRUE(std::holds_alternative<SymbolicTileAnalysis>(analysis_or_error));
   SymbolicTileAnalysis analysis =
-      std::get<SymbolicTileAnalysis>(analysis_or_error);
+      std::get<SymbolicTileAnalysis>(std::move(analysis_or_error));
 
   analysis.SetTileParametersWithDefaultOffsetsAndStrides(/*sizes=*/{1, 10});
 
-  const HloInstruction* p0 =
-      module->entry_computation()->parameter_instruction(0);
-  SymbolicTileAnalysis::InstructionPathFromRoot p0_from_subtract0({0});
-  SymbolicTileAnalysis::InstructionPathFromRoot p0_from_subtract1({1, 0, 0});
+  auto root = analysis.GetRoot();
 
-  EXPECT_THAT(analysis.TileOffsets(p0, p0_from_subtract0), ElementsAre(0, 0));
-  EXPECT_THAT(analysis.TileSizes(p0, p0_from_subtract0), ElementsAre(1, 10));
-  EXPECT_THAT(analysis.TileStrides(p0, p0_from_subtract0), ElementsAre(1, 1));
+  auto p0_from_subtract0 = root->operands[0];
+  auto p0_from_subtract1 = root->operands[1]->operands[0]->operands[0];
 
-  EXPECT_THAT(analysis.TileOffsets(p0, p0_from_subtract1), ElementsAre(0, 0));
-  EXPECT_THAT(analysis.TileSizes(p0, p0_from_subtract1), ElementsAre(1, 97));
-  EXPECT_THAT(analysis.TileStrides(p0, p0_from_subtract1), ElementsAre(1, 1));
+  EXPECT_THAT(analysis.TileOffsets(p0_from_subtract0), ElementsAre(0, 0));
+  EXPECT_THAT(analysis.TileSizes(p0_from_subtract0), ElementsAre(1, 10));
+  EXPECT_THAT(analysis.TileStrides(p0_from_subtract0), ElementsAre(1, 1));
+
+  EXPECT_THAT(analysis.TileOffsets(p0_from_subtract1), ElementsAre(0, 0));
+  EXPECT_THAT(analysis.TileSizes(p0_from_subtract1), ElementsAre(1, 97));
+  EXPECT_THAT(analysis.TileStrides(p0_from_subtract1), ElementsAre(1, 1));
+}
+
+TEST_F(SymbolicTileAnalysisTest, ElementwiseDiamond) {
+  TF_ASSERT_OK_AND_ASSIGN(std::unique_ptr<VerifiedHloModule> module,
+                          ParseAndReturnVerifiedModule(R"(
+ENTRY main {
+  p0 = f32[2,97] parameter(0)
+  exp = f32[2,97] exponential(p0)
+  log = f32[2,97] log(p0)
+  ROOT subtract = f32[2,97] subtract(exp, log)
+})"));
+
+  mlir::MLIRContext mlir_ctx;
+  IndexingContext ctx(&mlir_ctx);
+
+  SymbolicTileAnalysisOrError analysis_or_error =
+      SymbolicTileAnalysis::AnalyzeComputation(*module->entry_computation(),
+                                               &ctx);
+
+  EXPECT_TRUE(std::holds_alternative<SymbolicTileAnalysis>(analysis_or_error));
+  SymbolicTileAnalysis analysis =
+      std::get<SymbolicTileAnalysis>(std::move(analysis_or_error));
+
+  auto root = analysis.GetRoot();
+
+  auto p0_from_subtract0 = root->operands[0]->operands[0];
+  auto p0_from_subtract1 = root->operands[1]->operands[0];
+
+  EXPECT_EQ(p0_from_subtract0, p0_from_subtract1);
 }
 
 TEST_F(SymbolicTileAnalysisTest, BailOutOnUnsupportedDot) {
