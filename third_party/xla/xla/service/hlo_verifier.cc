@@ -2268,67 +2268,49 @@ Status VerifyChannels(const HloModule& module) {
 
       switch (instruction->opcode()) {
         case HloOpcode::kSend: {
-          TF_RET_CHECK(instruction->users().size() == 1);
-          const HloInstruction* send_user = instruction->users().front();
-          if (send_user->opcode() == HloOpcode::kSendDone) {
-            TF_RETURN_IF_ERROR(CheckSameChannel(instruction, send_user));
-            TF_RETURN_IF_ERROR(CheckSameIsHostTransfer(instruction, send_user));
-          } else {
-            // If a Send user is not a SendDone, it has to be a tuple that is
-            // either the root of a while-body or the init of a while-loop.
-            TF_RET_CHECK(send_user->opcode() == HloOpcode::kTuple);
-            if (send_user != send_user->parent()->root_instruction()) {
-              TF_RET_CHECK(send_user->users().size() == 1);
-              const HloInstruction* user = send_user->users().front();
-              TF_RET_CHECK(user->opcode() == HloOpcode::kWhile);
+          bool pipelined = true;
+          if (instruction->users().size() == 1) {
+            const HloInstruction* send_user = instruction->users().front();
+            if (send_user->opcode() == HloOpcode::kSendDone) {
+              TF_RETURN_IF_ERROR(CheckSameChannel(instruction, send_user));
+              TF_RETURN_IF_ERROR(
+                  CheckSameIsHostTransfer(instruction, send_user));
+              pipelined = false;
             }
           }
+          // Pipelined Send should be annotated with frontend attributes.
+          TF_RET_CHECK(pipelined == false ||
+                       !instruction->frontend_attributes().map().empty());
           break;
         }
         case HloOpcode::kRecv: {
-          TF_RET_CHECK(instruction->users().size() == 1);
-          const HloInstruction* recv_user = instruction->users().front();
-          if (recv_user->opcode() == HloOpcode::kRecvDone) {
-            TF_RETURN_IF_ERROR(CheckSameChannel(instruction, recv_user));
-            TF_RETURN_IF_ERROR(CheckSameIsHostTransfer(instruction, recv_user));
-          } else {
-            // If a Recv user is not a RecvDone, it has to be a tuple that is
-            // either the root of a while-body or the init of a while-loop.
-            TF_RET_CHECK(recv_user->opcode() == HloOpcode::kTuple);
-            if (recv_user != recv_user->parent()->root_instruction()) {
-              TF_RET_CHECK(recv_user->users().size() == 1);
-              const HloInstruction* user = recv_user->users().front();
-              TF_RET_CHECK(user->opcode() == HloOpcode::kWhile);
+          bool pipelined = true;
+          if (instruction->users().size() == 1) {
+            const HloInstruction* recv_user = instruction->users().front();
+            if (recv_user->opcode() == HloOpcode::kRecvDone) {
+              TF_RETURN_IF_ERROR(CheckSameChannel(instruction, recv_user));
+              TF_RETURN_IF_ERROR(
+                  CheckSameIsHostTransfer(instruction, recv_user));
+              pipelined = false;
             }
           }
+          // Pipelined Recv should be annotated with frontend attributes.
+          TF_RET_CHECK(pipelined == false ||
+                       !instruction->frontend_attributes().map().empty());
           break;
         }
         case HloOpcode::kSendDone: {
           TF_RET_CHECK(instruction->operands().size() == 1);
           const HloInstruction* send_done_operand = instruction->operand(0);
-          if (send_done_operand->opcode() != HloOpcode::kSend) {
-            // If the SendDone operand is not a Send, it has to be either part
-            // of a while-loop result or a parameter of a while-body.
-            TF_RET_CHECK(send_done_operand->opcode() ==
-                         HloOpcode::kGetTupleElement);
-            HloOpcode opcode = send_done_operand->operand(0)->opcode();
-            TF_RET_CHECK(opcode == HloOpcode::kWhile ||
-                         opcode == HloOpcode::kParameter);
-          }
+          TF_RET_CHECK(send_done_operand->opcode() == HloOpcode::kSend ||
+                       !instruction->frontend_attributes().map().empty());
           break;
         }
         case HloOpcode::kRecvDone: {
           TF_RET_CHECK(instruction->operands().size() == 1);
           const HloInstruction* recv_done_operand = instruction->operand(0);
-          if (recv_done_operand->opcode() != HloOpcode::kRecv) {
-            // If the RecvDone operand is not a Recv, it has to be either part
-            // of a while-loop result or a parameter of a while-body.
-            TF_RET_CHECK(recv_done_operand->opcode() ==
-                         HloOpcode::kGetTupleElement);
-            HloOpcode opcode = recv_done_operand->operand(0)->opcode();
-            TF_RET_CHECK(opcode == HloOpcode::kWhile ||
-                         opcode == HloOpcode::kParameter);
-          }
+          TF_RET_CHECK(recv_done_operand->opcode() == HloOpcode::kRecv ||
+                       !instruction->frontend_attributes().map().empty());
           break;
         }
         default:

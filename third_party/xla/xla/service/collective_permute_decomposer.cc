@@ -151,7 +151,8 @@ Status DecomposeCollectivePermute(
 
   HloInstruction* recv_done =
       computation->AddInstruction(HloInstruction::CreateRecvDone(recv));
-  computation->AddInstruction(HloInstruction::CreateSendDone(send));
+  HloInstruction* send_done =
+      computation->AddInstruction(HloInstruction::CreateSendDone(send));
 
   HloInstruction* recv_data = computation->AddInstruction(
       HloInstruction::CreateGetTupleElement(recv_done, 0));
@@ -163,7 +164,9 @@ Status DecomposeCollectivePermute(
     xla::FrontendAttributes attributes;
     (*attributes.mutable_map())[kSendRecvPipelineAttr] = pipeline_decision;
     send->add_frontend_attributes(attributes);
+    send_done->add_frontend_attributes(attributes);
     recv->add_frontend_attributes(attributes);
+    recv_done->add_frontend_attributes(attributes);
   }
 
   return OkStatus();
