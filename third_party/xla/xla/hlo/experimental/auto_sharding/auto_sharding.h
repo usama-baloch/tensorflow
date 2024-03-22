@@ -385,6 +385,12 @@ BuildStrategyAndCost(const HloInstructionSequence& sequence,
                      const HloCostAnalysis& hlo_cost_analysis,
                      bool trying_multiple_mesh_shapes);
 
+int64_t MemoryBudgetLowerBound(
+    const HloModule& module, const LivenessSet& liveness_set,
+    const HloAliasAnalysis* alias_analysis, const int64_t num_devices,
+    const absl::flat_hash_map<std::string, std::vector<HloSharding>>&
+        preserved_shardings);
+
 }  // namespace spmd
 }  // namespace xla
 

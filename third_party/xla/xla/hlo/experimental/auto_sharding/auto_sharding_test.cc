@@ -34,6 +34,7 @@ limitations under the License.
 #include "xla/hlo/ir/hlo_schedule.h"
 #include "xla/hlo/ir/hlo_sharding.h"
 #include "xla/hlo/utils/hlo_matchers.h"
+#include "xla/service/hlo_memory_scheduler.h"
 #include "xla/service/hlo_parser.h"
 #include "xla/statusor.h"
 #include "xla/tests/hlo_test_base.h"
@@ -161,6 +162,69 @@ ENTRY %elementwise {
                 ElementsAreArray(expected_tile));
   }
 };
+
+TEST_F(AutoShardingTest, MemoryBudgetTest) {
+  auto compute_memory_budget_lower_bound =
+      [](const HloModule& module, int64_t num_devices,
+         const absl::flat_hash_map<std::string, std::vector<HloSharding>>&
+             preserved_shardings = {}) -> StatusOr<int64_t> {
+    auto size_fn = [](const BufferValue& buffer) {
+      return spmd::GetBytes(buffer.shape());
+    };
+    TF_ASSIGN_OR_RETURN(HloSchedule schedule,
+                        ScheduleModule(&module, size_fn,
+                                       ComputationSchedulerToModuleScheduler(
+                                           DFSMemoryScheduler),
+                                       /* execution_threads */ {}));
+    const HloComputation* entry_computation = module.entry_computation();
+    std::unique_ptr<HloAliasAnalysis> alias_analysis =
+        HloAliasAnalysis::Run(&module).value();
+
+    TF_ASSIGN_OR_RETURN(
+        std::unique_ptr<HloLiveRange> hlo_live_range,
+        HloLiveRange::Run(schedule, *alias_analysis, entry_computation));
+    absl::flat_hash_map<const HloValue*, HloLiveRange::TimeBound>&
+        buffer_live_ranges = hlo_live_range->buffer_live_ranges();
+    spmd::LivenessSet liveness_set(hlo_live_range->schedule_end_time() + 1);
+    for (const auto& iter : buffer_live_ranges) {
+      for (spmd::LivenessIdx i = iter.second.start; i <= iter.second.end; ++i) {
+        liveness_set[i].push_back(iter.first);
+      }
+    }
+    return spmd::MemoryBudgetLowerBound(module, liveness_set,
+                                        alias_analysis.get(), num_devices,
+                                        preserved_shardings);
+  };
+
+  constexpr absl::string_view hlo_string = R"(
+HloModule module
+ENTRY %elementwise {
+  %param0 = f32[16384,16384]{0,1} parameter(0)
+  %param1 = f32[16384,16384]{0,1} parameter(1)
+  %add = f32[16384,16384]{0,1} add(%param0, %param1)
+  ROOT %copy = f32[16384,16384]{0,1} copy(%add)
+})";
+
+  TF_ASSERT_OK_AND_ASSIGN(auto module,
+                          ParseAndReturnVerifiedModule(hlo_string));
+  TF_ASSERT_OK_AND_ASSIGN(HloSharding partial_sharding,
+                          ParseSharding("{devices=[64,1]<=[64]}"));
+  TF_ASSERT_OK_AND_ASSIGN(
+      int64_t partial_mesh_64x1_budget_lower_bound,
+      compute_memory_budget_lower_bound(*module, /* num_devices */ 64));
+  for (HloInstruction* ins : module->entry_computation()->instructions()) {
+    ins->set_sharding(partial_sharding);
+  }
+  TF_ASSERT_OK_AND_ASSIGN(
+      int64_t full_mesh_64x8_budget_lower_bound,
+      compute_memory_budget_lower_bound(*module, /* num_devices */ 512));
+  CHECK_LT(full_mesh_64x8_budget_lower_bound,
+           partial_mesh_64x1_budget_lower_bound)
+      << "The memory budget lower bound per device should be lower with a "
+         "larger number of devices. Instead, the bound was "
+      << partial_mesh_64x1_budget_lower_bound << " bytes for 64 devices and "
+      << full_mesh_64x8_budget_lower_bound << " bytes for 512 devices.";
+}
 
 TEST_F(AutoShardingTest, DISABLED_ElementWiseOperator) {
   constexpr absl::string_view hlo_string = R"(
