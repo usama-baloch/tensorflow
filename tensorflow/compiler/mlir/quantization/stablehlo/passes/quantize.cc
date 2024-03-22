@@ -117,10 +117,10 @@ void QuantizePass::runOnOperation() {
     PopulateQuantizeHybridPatterns(ctx, patterns);
   }
 
-  PopulateQuantizeOpWithRegionPattern(ctx, patterns);
-  PopulateFusedGemmStylePatterns(ctx, patterns,
-                                 enable_per_channel_quantized_weight_);
-  PopulateQuantizeSingularOpPatterns(ctx, patterns);
+  PopulateComputeHeavyPatterns(ctx, patterns,
+                               enable_per_channel_quantized_weight_);
+
+  PopulateAllQuantizablePatterns(ctx, patterns);
 
   if (failed(applyPatternsAndFoldGreedily(module_op, std::move(patterns)))) {
     // There are cases where no rewrites happen even if a pattern matches,
