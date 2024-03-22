@@ -885,6 +885,19 @@ bool IsConnectedWithQuantizedCompsiteFunction(Operation* same_scale_op) {
   return false;
 }
 
+class QuantizeHybridConvolutionPattern
+    : public EntryFuncBodyQuantizationPattern {
+ public:
+  explicit QuantizeHybridConvolutionPattern() = default;
+
+  LogicalResult match(func::FuncOp entry_func_op) const override {
+    return MatchGemmStyleOp<ConvolutionOp>(entry_func_op);
+  }
+
+  void rewrite(func::FuncOp entry_func_op,
+               PatternRewriter& rewriter) const override {}
+};
+
 class QuantizeHybridDotGeneralPattern
     : public EntryFuncBodyQuantizationPattern {
  public:
@@ -945,7 +958,8 @@ void PopulateFusedGemmStylePatterns(
 
 void PopulateQuantizeHybridPatterns(MLIRContext& ctx,
                                     RewritePatternSet& patterns) {
-  patterns.add<HybridXlaCallModuleOpToCallOp<QuantizeHybridDotGeneralPattern>>(
+  patterns.add<HybridXlaCallModuleOpToCallOp<QuantizeHybridDotGeneralPattern>,
+               HybridXlaCallModuleOpToCallOp<QuantizeHybridConvolutionPattern>>(
       ctx, false);
 }
 

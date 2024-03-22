@@ -85,7 +85,10 @@ struct StableHloQuantizationHybrid
 
   static bool AllowHybridQuantization(Operation& op) {
     auto call_op = cast<TF::XlaCallModuleOp>(op);
-    return call_op && GetEntryFunctionName(call_op).contains("dot_general");
+    if (call_op == nullptr) return false;
+    StringRef entry_function_name = GetEntryFunctionName(call_op);
+    return entry_function_name.contains("conv") ||
+           entry_function_name.contains("dot_general");
   }
 };
 
