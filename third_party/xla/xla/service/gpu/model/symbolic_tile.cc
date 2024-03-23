@@ -13,7 +13,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 ==============================================================================*/
 
-#include "xla/service/gpu/model/tile_analysis.h"
+#include "xla/service/gpu/model/symbolic_tile.h"
 
 #include <cstdint>
 #include <optional>
@@ -24,7 +24,6 @@ limitations under the License.
 
 #include "absl/log/check.h"
 #include "absl/log/log.h"
-#include "absl/strings/str_cat.h"
 #include "absl/types/span.h"
 #include "llvm/ADT/STLExtras.h"
 #include "llvm/Support/Casting.h"
@@ -39,7 +38,6 @@ namespace xla {
 namespace gpu {
 namespace {
 
-using ::absl::StrCat;
 using ::mlir::AffineExpr;
 using ::mlir::AffineExprKind;
 using ::mlir::AffineMap;
@@ -332,17 +330,6 @@ void SymbolicTile::Print(std::ostream& out,
   out << "\n\tstride_map: ";
   printer.Print(out, stride_map_);
   out << "\n";
-}
-
-std::ostream& operator<<(std::ostream& out, const SymbolicTile& symbolic_tile) {
-  AffineMapPrinter printer;
-  for (int64_t symbol_id = 0;
-       symbol_id < symbolic_tile.size_map().getNumSymbols(); symbol_id++) {
-    printer.SetSymbolName(symbol_id, StrCat("size", symbol_id));
-  }
-
-  symbolic_tile.Print(out, printer);
-  return out;
 }
 
 }  // namespace gpu

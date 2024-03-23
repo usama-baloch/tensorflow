@@ -13,8 +13,8 @@ See the License for the specific language governing permissions and
 limitations under the License.
 ==============================================================================*/
 
-#ifndef XLA_SERVICE_GPU_MODEL_TILE_ANALYSIS_H_
-#define XLA_SERVICE_GPU_MODEL_TILE_ANALYSIS_H_
+#ifndef XLA_SERVICE_GPU_MODEL_SYMBOLIC_TILE_H_
+#define XLA_SERVICE_GPU_MODEL_SYMBOLIC_TILE_H_
 
 #include <optional>
 #include <ostream>
@@ -76,10 +76,7 @@ class SymbolicTile {
       : offset_map_(offset_map), size_map_(size_map), stride_map_(stride_map) {}
 };
 
-// Prints symbolic_tile with renamed labels for each symbol, s{i} => size{i}.
-std::ostream& operator<<(std::ostream& out, const SymbolicTile& symbolic_tile);
-
 }  // namespace gpu
 }  // namespace xla
 
-#endif  // XLA_SERVICE_GPU_MODEL_TILE_ANALYSIS_H_
+#endif  // XLA_SERVICE_GPU_MODEL_SYMBOLIC_TILE_H_
