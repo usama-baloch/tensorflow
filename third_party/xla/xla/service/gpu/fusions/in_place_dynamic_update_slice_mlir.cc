@@ -72,8 +72,7 @@ constexpr int kDUSUpdateIndex = 1;
 
 LaunchDimensions MlirInPlaceDynamicUpdateSliceFusion::launch_dimensions()
     const {
-  const auto& update_shape =
-      dus_ops_.front()->operand(kDUSUpdateIndex)->shape();
+  const auto& update_shape = dus_ops_.front()->update()->shape();
   return CalculateLaunchDimensions(update_shape, analysis_.device_info());
 }
 
@@ -83,8 +82,7 @@ MlirInPlaceDynamicUpdateSliceFusion::ComputeThreadIdToInputIndexing(
     mlir::MLIRContext* mlir_context) const {
   auto launch_dims = launch_dimensions();
   // It is guaranteed that all DUS ops have the same output shape at this point.
-  const auto& update_shape =
-      dus_ops_.front()->operand(kDUSUpdateIndex)->shape();
+  const auto& update_shape = dus_ops_.front()->update()->shape();
   return GetDefaultThreadIdToOutputIndexingMap(launch_dims, /*unroll_factor=*/1,
                                                update_shape, mlir_context);
 }
@@ -120,7 +118,7 @@ absl::Status MlirInPlaceDynamicUpdateSliceFusion::EmitEntryFunction(
 
   const auto* dus_instr =
       Cast<HloDynamicUpdateSliceInstruction>(dus_ops_.front());
-  const auto& update_shape = dus_instr->operand(kDUSUpdateIndex)->shape();
+  const auto& update_shape = dus_instr->update()->shape();
   auto result_tensors = EmitThreadLoopNest(
       b, output_tensor_args, indexing,
       [&](ValueRange output_tensors, ValueRange dim_values,

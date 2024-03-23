@@ -418,7 +418,7 @@ absl::StatusOr<bool> CanEmitFusedDynamicUpdateSliceInPlaceForGpu(
     return Internal("Output buffers should not be empty");
   }
 
-  Shape update_shape = dus_instrs[0]->operand(1)->shape();
+  Shape update_shape = dus_instrs[0]->update()->shape();
 
   for (int i = 0; i < dus_instrs.size(); ++i) {
     auto* dus = Cast<HloDynamicUpdateSliceInstruction>(dus_instrs[i]);
@@ -519,7 +519,7 @@ absl::StatusOr<bool> CanEmitFusedDynamicUpdateSliceInPlaceForGpu(
     // be necessary for the shape to be the same for all the dynamic slice
     // updates. Note that this equality check purposefully ignores the element
     // type.
-    if (dus->operand(1)->shape() != update_shape) {
+    if (dus->update()->shape() != update_shape) {
       return false;
     }
 
